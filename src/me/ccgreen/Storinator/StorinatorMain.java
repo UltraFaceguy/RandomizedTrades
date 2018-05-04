@@ -27,7 +27,6 @@ public class StorinatorMain extends JavaPlugin implements Listener {
 	
 	private static String prefix = "Storinator_";
 	public static String userTable = prefix + "playerData"; 
-	public static String configTable = prefix + "config";
 	
 	@Override
 	public void onEnable() {
@@ -56,23 +55,22 @@ public class StorinatorMain extends JavaPlugin implements Listener {
 	}
 	
 	private void initTables() {
-		SQL.initialiseTable(configTable, "setting", "setting VARCHAR(20) NOT NULL , data VARCHAR(50) NOT NULL");
 		SQL.initialiseTable(userTable, "uuidInv", "uuidInv VARCHAR(39) NOT NULL , data TEXT NULL DEFAULT NULL");
 	}
 
-	public static void printInfo(String line){
+	public static void printInfo(String line) {
 		CONSOLE.sendMessage(ChatColor.GREEN + "[Storinator9000] : " + line);
 	}
 
-	public static void printWarning(String line){
+	public static void printWarning(String line) {
 		CONSOLE.sendMessage(ChatColor.YELLOW + "[Storinator9000] : " + line);
 	}
 
-	public static void printError(String line){
+	public static void printError(String line) {
 		CONSOLE.sendMessage(ChatColor.RED + "[Storinator9000] : " + line);
 	}
 
-	public static String convertToMColors(String line){
+	public static String convertToMColors(String line) {
 		return line.replaceAll("&", "§");
 	}
 }

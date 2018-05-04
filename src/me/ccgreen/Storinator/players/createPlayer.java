@@ -9,7 +9,7 @@ public class createPlayer implements Runnable {
 	private StorinatorMain main;
 	private Player player;
 	
-	public createPlayer(StorinatorMain main, Player player){
+	public createPlayer(StorinatorMain main, Player player) {
 		this.main = main;
 		this.player = player;
 	}

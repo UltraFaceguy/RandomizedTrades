@@ -1,6 +1,5 @@
 package me.ccgreen.Storinator.windows;
 
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -10,8 +9,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.material.MaterialData;
-
 import me.ccgreen.Storinator.StorinatorMain;
 import me.ccgreen.Storinator.players.PlayerData;
 
@@ -41,31 +38,30 @@ public class VaultWindow {
 		barMeta.setDisplayName("");
 		barrier.setItemMeta(barMeta);
 		
+		
 		for(int i = 0; i < 9; i++) {
-			
+		
+			String name = StorinatorMain.Config.tabName().replaceAll("%number%", "" + (i + 1));
 			ItemStack button;
 			if(i == page) {
 				button = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 4);
 				ItemMeta meta = button.getItemMeta();
 				meta.addEnchant(Enchantment.MENDING, 1, true);
 				meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+				meta.setDisplayName(name);
 				button.setItemMeta(meta);
 			} else {
 				if(i == 0 || player.hasPermission("Storinator.vault." + i)) {
 					button = new ItemStack(Material.STAINED_GLASS_PANE, 1);
-				} else {
-					button = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 15);
 					ItemMeta meta = button.getItemMeta();
-					meta.setDisplayName(StorinatorMain.Config.getLore(i));
+					meta.setDisplayName(name);
 					button.setItemMeta(meta);
+				} else {
+					button = StorinatorMain.Config.getIcon(i);
 				}
 			}
 			
-			ItemMeta meta = button.getItemMeta();
-			meta.setDisplayName(ChatColor.GOLD + "Page " + i + "!");
-			button.setItemMeta(meta);
-			
-			inv.setItem(9 + i, barrier);
+			inv.setItem((9 + i), barrier);
 			inv.setItem(i, button);
 		}
 	}

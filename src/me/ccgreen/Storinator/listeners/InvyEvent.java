@@ -18,8 +18,7 @@ public class InvyEvent implements Listener{
 	}
 
 	@EventHandler
-	public void onInventoryOpen(InventoryOpenEvent event)
-	{
+	public void onInventoryOpen(InventoryOpenEvent event) {
 		if (event.getInventory().getType() == InventoryType.ENDER_CHEST){
 			//do things
 			Player player = (Player) event.getPlayer();
@@ -32,8 +31,7 @@ public class InvyEvent implements Listener{
 	}
 
 	@EventHandler
-	public void onClickAction(InventoryClickEvent event)
-	{
+	public void onClickAction(InventoryClickEvent event) {
 		if (event.getWhoClicked() instanceof Player){
 			StorinatorMain.winMan.handleClickEvent(event);
 		}

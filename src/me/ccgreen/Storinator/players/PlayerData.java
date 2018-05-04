@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.Vector;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -23,6 +24,7 @@ public class PlayerData {
 	private Inventory[] vaultData = new Inventory[9];
 
 	private static SQLlibMain SQL;
+	private static String chestName = ChatColor.RED + "" + ChatColor.GRAY + "¤" + StorinatorMain.Config.windowTitle();
 	private Player player;
 
 	public PlayerData(StorinatorMain main, Player player) {
@@ -45,14 +47,13 @@ public class PlayerData {
 
 	public Inventory getPage(int page) {
 		Inventory inv = vaultData[page];
+		if(inv == null) {
+			inv = Bukkit.createInventory(null, 54, chestName);
+		}
 		return inv;
 	}
 
 	public void updatePage(Inventory inv, int page) {
-
-		for(int i = 0; i < 18; i++) {
-			inv.setItem(i, null);
-		}
 
 		vaultData[page] = inv;
 		String pageData = toBase64(inv);
@@ -64,7 +65,7 @@ public class PlayerData {
 		for(int i = 0; i < 9; i++) {
 			if(vaultData[i] != null) {
 				String pageData = toBase64(vaultData[i]);
-				retval.add("replace into " + StorinatorMain.configTable + " (uuidInv, data) VALUES ('" + player.getUniqueId() + "_" + i + "', '" + pageData + "')");
+				retval.add("replace into " + StorinatorMain.userTable + " (uuidInv, data) VALUES ('" + player.getUniqueId() + "_" + i + "', '" + pageData + "')");
 			}
 		}
 		return retval;
@@ -95,7 +96,7 @@ public class PlayerData {
 		try {
 			ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(data));
 			BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
-			Inventory inventory = Bukkit.getServer().createInventory(null, dataInput.readInt() + 18);
+			Inventory inventory = Bukkit.getServer().createInventory(null, dataInput.readInt() + 18, chestName);
 
 			// Read the serialized inventory
 			for (int i = 0; i < inventory.getSize() - 18; i++) {

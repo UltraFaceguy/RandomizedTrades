@@ -13,17 +13,17 @@ public class EntryExitListener implements Listener {
 	}
 
 	@EventHandler
-	public void OnPlayerConnect(PlayerJoinEvent event){
+	public void OnPlayerConnect(PlayerJoinEvent event) {
 		StorinatorMain.playMan.newPlayer(event.getPlayer());
 	}
 
 	@EventHandler
-	public void OnPlayerDisconnect(PlayerQuitEvent event){
+	public void OnPlayerDisconnect(PlayerQuitEvent event) {
 		StorinatorMain.playMan.playerLeave(event.getPlayer());
 	}
 
 	@EventHandler
-	public void OnPlayerKicked(PlayerKickEvent event){
+	public void OnPlayerKicked(PlayerKickEvent event) {
 		StorinatorMain.playMan.playerLeave(event.getPlayer());
 	}
 }
