@@ -8,7 +8,6 @@ import java.sql.SQLException;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -53,17 +52,7 @@ public class PlayerData {
 		return inv;
 	}
 	
-	public void updatePage(Inventory inv) {
-		int page = 0;
-		for(; page < 9; page++) {
-			if(inv.getItem(page).getType() == Material.STAINED_GLASS) {
-				break;
-			}
-		}
-		if(page == 9) {
-			player.sendMessage("Saving error, no page found");
-			return;
-		}
+	public void updatePage(Inventory inv, int page) {
 		
 		for(int i = 0; i < 18; i++) {
 			inv.setItem(i, null);

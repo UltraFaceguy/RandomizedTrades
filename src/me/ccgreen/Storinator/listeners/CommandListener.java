@@ -27,17 +27,23 @@ public class CommandListener implements CommandExecutor {
 					if(player != null) {
 						StorinatorMain.winMan.createVaultWindow(player);
 					} else {
-						StorinatorMain.printInfo("Use 'storinator open <user>' to open the vault for the user");
+						printHelp();
 					}
 				}
 			}
 			else if(args[0].equalsIgnoreCase("reload")) {
 				StorinatorMain.Config.loadConfig();
 			} else {
-				StorinatorMain.printInfo("Use 'storinator open <user>' to open the vault for the user");
-				StorinatorMain.printInfo("Use 'storinator reload' to reload the config");
+				printHelp();
 			}
+		} else {
+			printHelp();
 		}
 		return false;
+	}
+
+	void printHelp() {
+		StorinatorMain.printInfo("Use 'storinator open <user>' to open the vault for the user");
+		StorinatorMain.printInfo("Use 'storinator reload' to reload the config");
 	}
 }

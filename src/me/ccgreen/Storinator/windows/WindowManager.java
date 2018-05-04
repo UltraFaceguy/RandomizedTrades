@@ -38,7 +38,7 @@ public class WindowManager {
 	public void removePlayer(Player player) {
 		if (VAULT_WINDOWS.containsKey(player)) {
 			if(player.getOpenInventory().getTitle().startsWith(ChatColor.RED + "" + ChatColor.GRAY + "¤")) {
-				StorinatorMain.playMan.saveData(player, player.getOpenInventory().getTopInventory());
+				StorinatorMain.playMan.saveData(player, player.getOpenInventory().getTopInventory(), VAULT_WINDOWS.get(player).getPage());
 			}
 			VAULT_WINDOWS.remove(player);
 		}

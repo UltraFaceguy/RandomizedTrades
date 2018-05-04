@@ -31,8 +31,8 @@ public class PlayerManager {
 		playerData.put(player, data);
 	}
 	
-	public void saveData(Player player, Inventory inv) {
-		playerData.get(player).updatePage(inv);
+	public void saveData(Player player, Inventory inv, int page) {
+		playerData.get(player).updatePage(inv, page);
 	}
 	
 	public PlayerData getData(Player player) {
