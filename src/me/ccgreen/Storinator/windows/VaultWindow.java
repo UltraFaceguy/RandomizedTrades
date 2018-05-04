@@ -84,14 +84,13 @@ public class VaultWindow {
 						//TODO change tab color
 					} else {
 						
-						MaterialData itemData = inv.getItem(slot).getData();
-						if(itemData.getData() == (short) 0) {
+						if(slot == page) {
+							//cur page event?
+						} else if(player.hasPermission("Storinator.vault." + slot)) {
 							event.setCancelled(true);
 							savePage();
 							StorinatorMain.winMan.changeVaultWindow(player, slot);
 							return;
-						} else if(itemData.getData() == (short) 4) {
-							//cur page event?
 						} else {
 							player.sendMessage("Button locked!");
 						}
