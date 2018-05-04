@@ -10,6 +10,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.material.MaterialData;
 
 import me.ccgreen.Storinator.StorinatorMain;
 import me.ccgreen.Storinator.players.PlayerData;
@@ -82,12 +83,14 @@ public class VaultWindow {
 					} else if(event.isRightClick()) {
 						//TODO change tab color
 					} else {
-						Material itemType = inv.getItem(slot).getType();
-						if(itemType == Material.STAINED_GLASS_PANE) {
+						
+						MaterialData itemData = inv.getItem(slot).getData();
+						if(itemData.getData() == (short) 0) {
 							event.setCancelled(true);
+							savePage();
 							StorinatorMain.winMan.changeVaultWindow(player, slot);
 							return;
-						} else if(itemType == Material.STAINED_GLASS) {
+						} else if(itemData.getData() == (short) 4) {
 							//cur page event?
 						} else {
 							player.sendMessage("Button locked!");
@@ -109,7 +112,9 @@ public class VaultWindow {
 		}
 	}
 	
-	public int getPage() {
-		return page;
+	
+	
+	public void savePage() {
+		StorinatorMain.playMan.saveData(player, inv, page);
 	}
 }

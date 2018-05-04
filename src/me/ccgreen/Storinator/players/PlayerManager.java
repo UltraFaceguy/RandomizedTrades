@@ -1,6 +1,7 @@
 package me.ccgreen.Storinator.players;
 
 import java.util.HashMap;
+import java.util.Vector;
 
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -31,9 +32,20 @@ public class PlayerManager {
 		playerData.put(player, data);
 	}
 	
-	public void saveData(Player player, Inventory inv, int page) {
-		playerData.get(player).updatePage(inv, page);
+	public void saveAll() {
+		Vector<String> batchStatement = new Vector<String>();
+		for(PlayerData data : playerData.values()) {
+			Vector<String> playerBatch = data.saveAll();
+			for(int i = 0; i < playerBatch.size(); i++) {
+				batchStatement.add(playerBatch.get(i));
+			}
+		}
+		StorinatorMain.SQL.sendBatchOnMainThread(batchStatement);
 	}
+	
+	public void saveData(Player player, Inventory inv, int page) { 
+	    playerData.get(player).updatePage(inv, page); 
+	} 
 	
 	public PlayerData getData(Player player) {
 		if(playerData.containsKey(player)) {

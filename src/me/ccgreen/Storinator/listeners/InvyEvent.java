@@ -6,7 +6,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
 
@@ -41,26 +40,10 @@ public class InvyEvent implements Listener{
 	}
 
 	@EventHandler
-	public void onDragAction(InventoryDragEvent event)
-	{
-		if (event.getWhoClicked() instanceof Player){
-			StorinatorMain.winMan.handleDragEvent(event);
-		}
-	}
-
-	@EventHandler
 	public void OnWindowClose(InventoryCloseEvent e) {
 		if (!(e.getPlayer() instanceof Player)) {
 			return;
 		}
-		StorinatorMain.winMan.removePlayer((Player) e.getPlayer()); 
-	}
-
-	@EventHandler
-	public void OnPlayerClickInventory(InventoryClickEvent e) {
-		if (!(e.getWhoClicked() instanceof Player)) {
-			return;
-		}
-		StorinatorMain.winMan.handleClickEvent(e);
+		StorinatorMain.winMan.removePlayer((Player) e.getPlayer(), e.getInventory()); 
 	}
 };

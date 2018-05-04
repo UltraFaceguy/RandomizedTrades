@@ -44,7 +44,7 @@ public class config {
 		String[] defaultNames = {"Buy me!", "Find me!", "Edit me in config!", "Rename me!", "Woot! Settings!", "Im an unconfigured name!", "Powered by memes!", "cc wuz hear!"};
 
 		for(int i = 0; i < 8; i++) {
-			batchStatement.add("replace into storinator_config (setting, data) VALUES ('iconName_" + i + "', '" + defaultNames[i] + "')");
+			batchStatement.add("replace into " + StorinatorMain.configTable + " (setting, data) VALUES ('iconName_" + i + "', '" + defaultNames[i] + "')");
 			unlockLore[i] = defaultNames[i];
 		}
 
