@@ -26,6 +26,7 @@ public class PlayerData {
 	private static SQLlibMain SQL;
 	private static String chestName = ChatColor.RED + "" + ChatColor.GRAY + "¤" + StorinatorMain.Config.windowTitle();
 	private Player player;
+	private int openPage;
 
 	public PlayerData(StorinatorMain main, Player player) {
 		PlayerData.SQL = StorinatorMain.SQL;
@@ -43,9 +44,15 @@ public class PlayerData {
 				e.printStackTrace();
 			}
 		}
+		openPage = 0;
+	}
+	
+	public int lastOpenPage() {
+		return openPage;
 	}
 
 	public Inventory getPage(int page) {
+		openPage = page;
 		Inventory inv = vaultData[page];
 		if(inv == null) {
 			inv = Bukkit.createInventory(null, 54, chestName);

@@ -25,8 +25,7 @@ public class StorinatorMain extends JavaPlugin implements Listener {
 	public static SQLlibMain SQL;
 	private static ConsoleCommandSender CONSOLE;
 	
-	private static String prefix = "Storinator_";
-	public static String userTable = prefix + "playerData"; 
+	public static String userTable = "Storinator_playerData"; 
 	
 	@Override
 	public void onEnable() {
@@ -47,6 +46,10 @@ public class StorinatorMain extends JavaPlugin implements Listener {
 		for(Player player : Bukkit.getServer().getOnlinePlayers()) {
 			playMan.newPlayer(player);
 		}
+	}
+	
+	public StorinatorMain getMain() {
+		return this;
 	}
 
 	@Override

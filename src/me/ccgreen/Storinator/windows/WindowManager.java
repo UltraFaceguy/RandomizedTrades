@@ -33,14 +33,10 @@ public class WindowManager {
 		}, 6000, 6000);
 	}
 
-	private void openWindow(Player player, int page) {
-		VaultWindow VW = new VaultWindow(player, page);
-		VAULT_WINDOWS.put(player, VW);
-	}
-
 	public void createVaultWindow(Player player) {
 		if(StorinatorMain.playMan.hasPlayer(player)) {
-			openWindow(player, 0);
+			VaultWindow VW = new VaultWindow(player);
+			VAULT_WINDOWS.put(player, VW);
 		} else {
 			player.sendMessage("Data still loading...");
 		}
@@ -48,7 +44,8 @@ public class WindowManager {
 
 	public void changeVaultWindow(Player player, int page) {
 		player.closeInventory();
-		openWindow(player, page);
+		VaultWindow VW = new VaultWindow(player, page);
+		VAULT_WINDOWS.put(player, VW);
 	}
 
 	public void removePlayer(Player player) {
