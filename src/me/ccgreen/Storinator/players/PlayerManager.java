@@ -1,6 +1,7 @@
 package me.ccgreen.Storinator.players;
 
 import java.util.HashMap;
+import java.util.UUID;
 import java.util.Vector;
 
 import org.bukkit.Bukkit;
@@ -13,25 +14,26 @@ public class PlayerManager {
 
 	private StorinatorMain plugin;
 
-	private HashMap<Player, PlayerData> playerData = new HashMap<Player, PlayerData>();
+	private HashMap<UUID, PlayerData> playerData = new HashMap<UUID, PlayerData>();
 
 	public PlayerManager(StorinatorMain main) {
 		plugin = main;
 	}
 
 	public void newPlayer(Player player) {
-		if(!playerData.containsKey(player)) {
+		if(!hasPlayer(player)) {
 			createPlayer creator = new createPlayer(plugin, player);
 			Bukkit.getScheduler().runTaskAsynchronously(plugin, creator);
+			StorinatorMain.printInfo(player.getDisplayName());
 		}
 	}
 
 	public boolean hasPlayer(Player player) {
-		return playerData.containsKey(player);
+		return playerData.containsKey(player.getUniqueId());
 	}
 
 	public void addData(Player player, PlayerData data) {	
-		playerData.put(player, data);
+		playerData.put(player.getUniqueId(), data);
 	}
 
 	public void saveAll() {
@@ -46,12 +48,12 @@ public class PlayerManager {
 	}
 
 	public void saveData(Player player, Inventory inv, int page) { 
-		playerData.get(player).updatePage(inv, page); 
+		playerData.get(player.getUniqueId()).updatePage(inv, page); 
 	} 
 
 	public PlayerData getData(Player player) {
-		if(playerData.containsKey(player)) {
-			return playerData.get(player);
+		if(playerData.containsKey(player.getUniqueId())) {
+			return playerData.get(player.getUniqueId());
 		} else {
 			return null;
 		}
