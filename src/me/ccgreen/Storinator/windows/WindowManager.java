@@ -15,8 +15,7 @@ import me.ccgreen.Storinator.StorinatorMain;
 public class WindowManager {
 
 	private static HashMap<Player, VaultWindow> VAULT_WINDOWS = new HashMap<Player, VaultWindow>();
-	//private static 
-	private StorinatorMain main;
+	public StorinatorMain main;
 
 	public WindowManager(StorinatorMain main){
 		this.main = main;

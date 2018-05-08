@@ -36,6 +36,8 @@ public class PlayerData {
 			try {
 				if(invResult.next()) {
 					vaultData[i] = fromBase64(invResult.getString("data"));
+				} else {
+					vaultData[i] = Bukkit.createInventory(null, 54, chestName);
 				}
 			} catch (SQLException e) {
 				//page not saved before (never been opened)
@@ -61,7 +63,6 @@ public class PlayerData {
 	}
 
 	public void updatePage(Inventory inv, int page) {
-
 		vaultData[page] = inv;
 		String pageData = toBase64(inv);
 		SQL.set(StorinatorMain.userTable, "uuidInv, data", "'" + player.getUniqueId() + "_" + page + "', '" + pageData + "'");

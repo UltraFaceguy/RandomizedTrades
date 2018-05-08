@@ -17,7 +17,7 @@ public class CommandListener implements CommandExecutor {
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
-		if (sender instanceof Player) {
+		if (sender instanceof Player) {			
 			return false;
 		}
 		if(args.length > 0) {
