@@ -1,5 +1,6 @@
 package me.ccgreen.Storinator;
 
+import me.ccgreen.Storinator.commands.BaseCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.ConsoleCommandSender;
@@ -8,12 +9,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import me.ccgreen.SQLlib.SQLlibMain;
-import me.ccgreen.Storinator.config;
-import me.ccgreen.Storinator.listeners.CommandListener;
 import me.ccgreen.Storinator.listeners.EntryExitListener;
-import me.ccgreen.Storinator.listeners.InvyEvent;
-import me.ccgreen.Storinator.players.PlayerManager;
+import me.ccgreen.Storinator.listeners.InventoryListener;
+import me.ccgreen.Storinator.managers.PlayerManager;
 import me.ccgreen.Storinator.windows.WindowManager;
+import se.ranzdo.bukkit.methodcommand.CommandHandler;
 
 
 public class StorinatorMain extends JavaPlugin implements Listener {
@@ -21,11 +21,13 @@ public class StorinatorMain extends JavaPlugin implements Listener {
 	public static WindowManager winMan;
 	public static PlayerManager playMan;
 	public static config Config;
+
+	private CommandHandler commandHandler;
 	
 	public static SQLlibMain SQL;
 	private static ConsoleCommandSender CONSOLE;
 	
-	public static String userTable = "Storinator_playerData"; 
+	public static String userTable = "storinator_data_v2";
 	
 	@Override
 	public void onEnable() {
@@ -34,14 +36,17 @@ public class StorinatorMain extends JavaPlugin implements Listener {
 		CONSOLE = Bukkit.getServer().getConsoleSender();
 		
 		initTables();
+
+		commandHandler = new CommandHandler(this);
 		
 		winMan = new WindowManager(this);
 		playMan = new PlayerManager(this);
 		Config = new config(this);
-		
-		getCommand("storinator").setExecutor(new CommandListener(this));
-		getServer().getPluginManager().registerEvents(new InvyEvent(), this);
+
+		getServer().getPluginManager().registerEvents(new InventoryListener(), this);
 		getServer().getPluginManager().registerEvents(new EntryExitListener(), this);
+
+		commandHandler.registerCommands(new BaseCommand(this));
 		
 		for(Player player : Bukkit.getServer().getOnlinePlayers()) {
 			playMan.newPlayer(player);
@@ -71,9 +76,5 @@ public class StorinatorMain extends JavaPlugin implements Listener {
 
 	public static void printError(String line) {
 		CONSOLE.sendMessage(ChatColor.RED + "[Storinator9000] : " + line);
-	}
-
-	public static String convertToMColors(String line) {
-		return line.replaceAll("&", "§");
 	}
 }

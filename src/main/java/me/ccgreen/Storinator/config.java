@@ -42,7 +42,7 @@ public class config {
 						configYml.set("tab_name", ChatColor.RED + "Page %number%!");
 						
 						for(int i = 0; i < 8; i++) {
-							ItemStack locked = new ItemStack(Material.STAINED_GLASS_PANE, 1, (short) 15);
+							ItemStack locked = new ItemStack(Material.RED_STAINED_GLASS_PANE, 1);
 							ItemMeta meta = locked.getItemMeta();
 							
 							meta.setDisplayName(names[i]);

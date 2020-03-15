@@ -1,11 +1,13 @@
 name: Storinator9000
 main: me.ccgreen.Storinator.StorinatorMain
-version: 1.0
+version: 1.0.0
 description: A vault plugin
 depend: [SQLlib]
+api-version: 1.15
+
 commands:
-    storinator:
-        description: the main vault command
+  storinator:
+    description: the main vault command
 permissions:
   Storinator.access:
     default: false

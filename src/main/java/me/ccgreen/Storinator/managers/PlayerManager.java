@@ -1,8 +1,10 @@
-package me.ccgreen.Storinator.players;
+package me.ccgreen.Storinator.managers;
 
 import java.util.HashMap;
 import java.util.Vector;
 
+import me.ccgreen.Storinator.tasks.CreatePlayerTask;
+import me.ccgreen.Storinator.pojo.PlayerData;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -20,7 +22,7 @@ public class PlayerManager {
 	}
 
 	public void newPlayer(Player player) {
-			createPlayer creator = new createPlayer(plugin, player);
+			CreatePlayerTask creator = new CreatePlayerTask(player);
 			Bukkit.getScheduler().runTaskAsynchronously(plugin, creator);
 	}
 
@@ -33,26 +35,20 @@ public class PlayerManager {
 	}
 
 	public void saveAll() {
-		Vector<String> batchStatement = new Vector<String>();
+		Vector<String> batchStatement = new Vector<>();
 		for(PlayerData data : playerData.values()) {
-			Vector<String> playerBatch = data.saveAll();
-			for(int i = 0; i < playerBatch.size(); i++) {
-				batchStatement.add(playerBatch.get(i));
-			}
+			Vector<String> playerBatch = PlayerData.saveAll(data);
+			batchStatement.addAll(playerBatch);
 		}
 		StorinatorMain.SQL.sendBatchOnMainThread(batchStatement);
 	}
 
-	public void saveData(Player player, Inventory inv, int page) { 
-		playerData.get(player).updatePage(inv, page); 
+	public void saveData(Player player, Inventory inv, int page) {
+		PlayerData.updatePage(playerData.get(player), inv, page);
 	} 
 
 	public PlayerData getData(Player player) {
-		if(playerData.containsKey(player)) {
-			return playerData.get(player);
-		} else {
-			return null;
-		}
+		return playerData.getOrDefault(player, null);
 	}
 
 	public void playerLeave(Player player) {
