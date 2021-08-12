@@ -1,6 +1,7 @@
 package me.ccgreen.Storinator;
 
-import me.ccgreen.Storinator.commands.BaseCommand;
+import com.tealcube.minecraft.bukkit.shade.acf.PaperCommandManager;
+import me.ccgreen.Storinator.commands.StorinatorCommand;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.ConsoleCommandSender;
@@ -13,7 +14,6 @@ import me.ccgreen.Storinator.listeners.EntryExitListener;
 import me.ccgreen.Storinator.listeners.InventoryListener;
 import me.ccgreen.Storinator.managers.PlayerManager;
 import me.ccgreen.Storinator.windows.WindowManager;
-import se.ranzdo.bukkit.methodcommand.CommandHandler;
 
 
 public class StorinatorMain extends JavaPlugin implements Listener {
@@ -21,8 +21,6 @@ public class StorinatorMain extends JavaPlugin implements Listener {
 	public static WindowManager winMan;
 	public static PlayerManager playMan;
 	public static config Config;
-
-	private CommandHandler commandHandler;
 	
 	public static SQLlibMain SQL;
 	private static ConsoleCommandSender CONSOLE;
@@ -36,8 +34,6 @@ public class StorinatorMain extends JavaPlugin implements Listener {
 		CONSOLE = Bukkit.getServer().getConsoleSender();
 		
 		initTables();
-
-		commandHandler = new CommandHandler(this);
 		
 		winMan = new WindowManager(this);
 		playMan = new PlayerManager(this);
@@ -46,7 +42,8 @@ public class StorinatorMain extends JavaPlugin implements Listener {
 		getServer().getPluginManager().registerEvents(new InventoryListener(), this);
 		getServer().getPluginManager().registerEvents(new EntryExitListener(), this);
 
-		commandHandler.registerCommands(new BaseCommand(this));
+		PaperCommandManager commandManager = new PaperCommandManager(this);
+		commandManager.registerCommand(new StorinatorCommand(this));
 		
 		for(Player player : Bukkit.getServer().getOnlinePlayers()) {
 			playMan.newPlayer(player);
@@ -60,6 +57,7 @@ public class StorinatorMain extends JavaPlugin implements Listener {
 	@Override
 	public void onDisable() {
 		winMan.closeInventoryies();
+		playMan.saveAll();
 	}
 	
 	private void initTables() {

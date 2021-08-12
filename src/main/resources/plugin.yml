@@ -10,13 +10,13 @@ commands:
     description: the main vault command
 permissions:
   Storinator.access:
-    default: false
+    default: true
   Storinator.vault.1:
-    default: false
+    default: true
   Storinator.vault.2:
-    default: false
+    default: true
   Storinator.vault.3:
-    default: false
+    default: true
   Storinator.vault.4:
     default: false
   Storinator.vault.5:

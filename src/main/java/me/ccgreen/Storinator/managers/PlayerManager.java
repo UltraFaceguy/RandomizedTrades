@@ -1,8 +1,9 @@
 package me.ccgreen.Storinator.managers;
 
-import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
 
+import java.util.WeakHashMap;
 import me.ccgreen.Storinator.tasks.CreatePlayerTask;
 import me.ccgreen.Storinator.pojo.PlayerData;
 import org.bukkit.Bukkit;
@@ -13,9 +14,8 @@ import me.ccgreen.Storinator.StorinatorMain;
 
 public class PlayerManager {
 
-	private StorinatorMain plugin;
-
-	private HashMap<Player, PlayerData> playerData = new HashMap<Player, PlayerData>();
+	private final StorinatorMain plugin;
+	private final Map<Player, PlayerData> playerData = new WeakHashMap<>();
 
 	public PlayerManager(StorinatorMain main) {
 		plugin = main;
@@ -55,8 +55,4 @@ public class PlayerManager {
 		playerData.remove(player);
 		player.closeInventory();
 	}
-
-
-
-
 }

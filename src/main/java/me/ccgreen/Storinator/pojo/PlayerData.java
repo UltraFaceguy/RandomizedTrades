@@ -21,7 +21,7 @@ import me.ccgreen.Storinator.StorinatorMain;
 
 public class PlayerData {
 
-  private Inventory[] vaultData = new Inventory[9];
+  private final Inventory[] vaultData = new Inventory[9];
 
   private static SQLlibMain SQL;
   public static String INVY_NAME = ChatColor.RED + "" + ChatColor.GRAY
@@ -67,8 +67,13 @@ public class PlayerData {
   public static void updatePage(PlayerData data, Inventory inv, int page) {
     data.vaultData[page] = inv;
     String pageData = toBase64(inv);
-    SQL.set(StorinatorMain.userTable, "uuidInv, data", "'" + data.player.getUniqueId()
-        + "_" + page + "', '" + pageData + "'");
+    try {
+      SQL.set(StorinatorMain.userTable, "uuidInv, data", "'" + data.player.getUniqueId()
+          + "_" + page + "', '" + pageData + "'");
+    } catch (Exception e) {
+      Bukkit.getLogger().warning("Error trying to input page for user " + data.player.getUniqueId());
+      e.printStackTrace();
+    }
   }
 
   public static Vector<String> saveAll(PlayerData data) {
@@ -89,11 +94,11 @@ public class PlayerData {
       BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream);
 
       // Write the size of the inventory
-      dataOutput.writeInt(inventory.getSize() - 18);
+      dataOutput.writeInt(45);
 
       // Save every element in the list
-      for (int i = 0; i < inventory.getSize() - 18; i++) {
-        dataOutput.writeObject(inventory.getItem(i + 18));
+      for (int i = 9; i < 54; i++) {
+        dataOutput.writeObject(inventory.getItem(i));
       }
 
       // Serialize that array
@@ -108,16 +113,20 @@ public class PlayerData {
     try {
       ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(data));
       BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
-      Inventory inventory = Bukkit.getServer().createInventory(null, dataInput.readInt() + 18,
-          INVY_NAME);
+      int size = dataInput.readInt();
+      Inventory inventory = Bukkit.getServer().createInventory(null, 54, INVY_NAME);
 
       // Read the serialized inventory
-      for (int i = 0; i < inventory.getSize() - 18; i++) {
-        inventory.setItem(i + 18, (ItemStack) dataInput.readObject());
+      for (int i = 9; i < 54; i++) {
+        try {
+          inventory.setItem(i, (ItemStack) dataInput.readObject());
+        } catch (Exception e) {
+          inventory.setItem(i, null);
+        }
       }
       dataInput.close();
       return inventory;
-    } catch (ClassNotFoundException e) {
+    } catch (Exception e) {
       throw new IOException("Unable to decode class type.", e);
     }
   }
