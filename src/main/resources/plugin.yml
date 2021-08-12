@@ -2,7 +2,7 @@ name: Storinator9000
 main: me.ccgreen.Storinator.StorinatorMain
 version: 1.0.0
 description: A vault plugin
-depend: [SQLlib]
+depend: [SQLlib, Facecore]
 api-version: 1.15
 
 commands:
