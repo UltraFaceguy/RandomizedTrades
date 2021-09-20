@@ -14,7 +14,7 @@ public class EntryExitListener implements Listener {
 
 	@EventHandler
 	public void OnPlayerConnect(PlayerJoinEvent event) {
-		StorinatorMain.playMan.newPlayer(event.getPlayer());
+		StorinatorMain.playMan.getPlayerData(event.getPlayer());
 	}
 
 	@EventHandler

@@ -31,13 +31,13 @@ public class StorinatorCommand extends BaseCommand {
   @CommandCompletion("@players")
   @CommandPermission("storinator.open")
   public void openCommand(CommandSender sender, OnlinePlayer target) {
-    StorinatorMain.winMan.createVaultWindow(target.getPlayer());
+    StorinatorMain.winMan.openVaultWindow(target.getPlayer(), null);
   }
 
   @Subcommand("inspect")
   @CommandCompletion("@players")
   @CommandPermission("storinator.inspect")
   public void inspectCommand(OnlinePlayer sender, OnlinePlayer target) {
-    StorinatorMain.winMan.createVaultWindow(sender.getPlayer(), target.getPlayer());
+    StorinatorMain.winMan.openVaultWindow(sender.getPlayer(), target.getPlayer());
   }
 }

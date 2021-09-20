@@ -1,58 +1,77 @@
 package me.ccgreen.Storinator.managers;
 
+import java.util.HashSet;
 import java.util.Map;
-import java.util.Vector;
+import java.util.Set;
 
+import java.util.UUID;
 import java.util.WeakHashMap;
-import me.ccgreen.Storinator.tasks.CreatePlayerTask;
 import me.ccgreen.Storinator.pojo.PlayerData;
+import me.ccgreen.Storinator.windows.VaultWindow;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
 
 import me.ccgreen.Storinator.StorinatorMain;
 
 public class PlayerManager {
 
-	private final StorinatorMain plugin;
-	private final Map<Player, PlayerData> playerData = new WeakHashMap<>();
+  private final StorinatorMain plugin;
+  private final Map<UUID, PlayerData> playerData;
 
-	public PlayerManager(StorinatorMain main) {
-		plugin = main;
-	}
+  public PlayerManager(final StorinatorMain plugin) {
+    this.plugin = plugin;
+    playerData = new WeakHashMap<>();
+  }
 
-	public void newPlayer(Player player) {
-			CreatePlayerTask creator = new CreatePlayerTask(player);
-			Bukkit.getScheduler().runTaskAsynchronously(plugin, creator);
-	}
+  public PlayerData getPlayerData(final Player player) {
+    if (playerData.containsKey(player.getUniqueId())) {
+      return playerData.get(player.getUniqueId());
+    }
+    Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, () -> {
+      PlayerData data = new PlayerData(player);
+      StorinatorMain.playMan.addData(player, data);
+    }, 0L);
+    return null;
+  }
 
-	public boolean hasPlayer(Player player) {
-		return playerData.containsKey(player);
-	}
+  public boolean hasPlayer(final Player player) {
+    return playerData.containsKey(player.getUniqueId());
+  }
 
-	public void addData(Player player, PlayerData data) {	
-		playerData.put(player, data);
-	}
+  public void addData(final Player player, final PlayerData data) {
+    playerData.put(player.getUniqueId(), data);
+  }
 
-	public void saveAll() {
-		Vector<String> batchStatement = new Vector<>();
-		for(PlayerData data : playerData.values()) {
-			Vector<String> playerBatch = PlayerData.saveAll(data);
-			batchStatement.addAll(playerBatch);
-		}
-		StorinatorMain.SQL.sendBatchOnMainThread(batchStatement);
-	}
+  public void saveAll() {
+    StorinatorMain.winMan.saveAllOpenToData();
+    Set<UUID> uuids = new HashSet<>();
+    for (Map.Entry<UUID, PlayerData> entry : playerData.entrySet()) {
+      PlayerData.savePage(entry.getValue(), 0);
+      PlayerData.savePage(entry.getValue(), 1);
+      PlayerData.savePage(entry.getValue(), 2);
+      PlayerData.savePage(entry.getValue(), 3);
+      PlayerData.savePage(entry.getValue(), 4);
+      PlayerData.savePage(entry.getValue(), 5);
+      PlayerData.savePage(entry.getValue(), 6);
+      PlayerData.savePage(entry.getValue(), 7);
+      PlayerData.savePage(entry.getValue(), 8);
+      boolean online = false;
+      for (Player p : Bukkit.getOnlinePlayers()) {
+        if (p.getUniqueId().equals(entry.getKey())) {
+          online = true;
+          break;
+        }
+      }
+      if (!online) {
+        uuids.add(entry.getKey());
+      }
+    }
+    for (final UUID uuid : uuids) {
+      playerData.remove(uuid);
+    }
+  }
 
-	public void saveData(Player player, Inventory inv, int page) {
-		PlayerData.updatePage(playerData.get(player), inv, page);
-	} 
-
-	public PlayerData getData(Player player) {
-		return playerData.getOrDefault(player, null);
-	}
-
-	public void playerLeave(Player player) {
-		playerData.remove(player);
-		player.closeInventory();
-	}
+  public void playerLeave(final Player player) {
+    player.closeInventory();
+  }
 }

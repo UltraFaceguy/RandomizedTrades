@@ -18,71 +18,47 @@ import me.ccgreen.Storinator.pojo.PlayerData;
 
 public class VaultWindow {
 
-  private final Inventory inv;
+  private final Inventory displayInventory;
   private final Player owner;
   private final Player viewer;
   private final PlayerData data;
-  private final ItemStack[] buttons = new ItemStack[10];
-  private int page;
+  private final ItemStack[] buttons;
 
-  VaultWindow(Player owner, Player viewer) {
+  private int openedPageNumber;
+
+  VaultWindow(final Player owner, final Player viewer) {
     this.owner = owner;
-    this.viewer = viewer == null ? owner : viewer;
-    data = StorinatorMain.playMan.getData(owner);
-    page = data.lastOpenPage();
+    this.viewer = ((viewer == null) ? owner : viewer);
 
-    inv = data.getPage(page);
+    buttons = new ItemStack[10];
+    data = StorinatorMain.playMan.getPlayerData(owner);
+    openedPageNumber = (hasPageAccess(owner, data.lastOpenPage()) ? data.lastOpenPage() : 0);
+    displayInventory = Bukkit.createInventory(null, 54, PlayerData.INVY_NAME);
     createButtons();
-    for (int i = 0; i < 9; i++) {
-      if (i == page) {
-        inv.setItem(i, activeButton());
-      } else {
-        inv.setItem(i, buttons[i]);
-      }
-    }
-
-    this.viewer.openInventory(inv);
-  }
-
-  VaultWindow(Player owner, Player viewer, int page) {
-    this.owner = owner;
-    this.viewer = (viewer == null) ? owner : viewer;
-    this.page = page;
-    data = StorinatorMain.playMan.getData(owner);
-
-    inv = data.getPage(page);
-    createButtons();
-    for (int i = 0; i < 9; i++) {
-      if (i == page) {
-        inv.setItem(i, activeButton());
-      } else {
-        inv.setItem(i, buttons[i]);
-      }
-    }
-    this.viewer.openInventory(inv);
+    applyPageData(data.getPage(openedPageNumber));
+    this.viewer.openInventory(displayInventory);
   }
 
   private void createButtons() {
     String configName = StorinatorMain.Config.tabName();
-    for (int i = 0; i < 9; i++) {
-      String name = configName.replaceAll("%number%", "" + (i + 1));
+    for (int i = 0; i < 9; ++i) {
+      final String name = configName.replaceAll("%number%", Integer.toString(i + 1));
       ItemStack button;
-
-      if (hasPageAccess(owner, i)) {
+      if (this.hasPageAccess(this.owner, i)) {
         button = new ItemStack(Material.MAP, 1);
-        ItemMeta meta = button.getItemMeta();
+        final ItemMeta meta = button.getItemMeta();
         meta.setDisplayName(name);
         button.setItemMeta(meta);
       } else {
         button = StorinatorMain.Config.getIcon(i);
       }
-
       buttons[i] = button;
     }
   }
 
   private ItemStack activeButton() {
-    String name = StorinatorMain.Config.tabName().replaceAll("%number%", "" + (page + 1));
+    String name = StorinatorMain.Config.tabName().replaceAll("%number%",
+        Integer.toString(openedPageNumber + 1));
     ItemStack button = new ItemStack(Material.FILLED_MAP, 1);
     ItemMeta meta = button.getItemMeta();
     assert meta != null;
@@ -90,88 +66,97 @@ public class VaultWindow {
     meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
     meta.setDisplayName(name);
     button.setItemMeta(meta);
-
     return button;
   }
 
-  private void reloadInv(int page) {
-    this.page = page;
-
-    inv.clear();
-    for (int i = 0; i < 9; i++) {
-      if (i == page) {
-        inv.setItem(i, activeButton());
-      } else {
-        inv.setItem(i, buttons[i]);
-      }
+  private void switchToPage(final int page) {
+    if (page == openedPageNumber) {
+      return;
     }
-    ItemStack[] items = data.getPage(page).getContents();
-    for (int i = 9; i < items.length; i++) {
-      inv.setItem(i, items[i]);
-    }
+    owner.playSound(owner.getLocation(), Sound.BLOCK_IRON_TRAPDOOR_OPEN, 1.0f, 0.9f + page * 0.03f);
+    saveDisplayToPage();
+    openedPageNumber = page;
+    applyPageData(data.getPage(page));
     owner.updateInventory();
     if (viewer != null) {
       viewer.updateInventory();
     }
   }
 
-  void HandleClickEvent(InventoryClickEvent event) {
-    int slot = event.getSlot();
-    if (slot < 0 || slot >= inv.getSize()) {
+  void handleClick(final InventoryClickEvent event) {
+    final int slot = event.getSlot();
+    if (slot < 0 || slot >= displayInventory.getSize()) {
       return;
     }
     if (event.getClickedInventory().getType() == InventoryType.CHEST) {
       if (slot < 9) {
-        if (slot == page) {
-          //cur page event?
-        } else if (hasPageAccess(owner, slot)) {
-          owner.playSound(owner.getLocation(), Sound.BLOCK_IRON_TRAPDOOR_OPEN, 1, 1);
-          event.setCancelled(true);
-          Inventory newInv = Bukkit.createInventory(null, 54, PlayerData.INVY_NAME);
-          newInv.setContents(inv.getContents());
-          savePage(newInv);
-          // StorinatorMain.winMan.changeVaultWindow(player);
-          page = slot;
-          reloadInv(slot);
-          return;
-        } else {
-          MessageUtils.sendMessage(owner, "&eSorry! You don't have this page unlocked!");
-          owner.playSound(owner.getLocation(), Sound.BLOCK_IRON_TRAPDOOR_CLOSE, 1, 1);
-        }
         event.setCancelled(true);
+        if (slot != openedPageNumber) {
+          if (hasPageAccess(owner, slot)) {
+            switchToPage(slot);
+            return;
+          }
+          MessageUtils.sendMessage(owner, "&eSorry! You don't have this page unlocked!");
+          owner.playSound(this.owner.getLocation(), Sound.BLOCK_IRON_TRAPDOOR_CLOSE, 1.0f, 0.7f);
+        }
       }
-    } else if (event.getClickedInventory().getType() == InventoryType.PLAYER) {
-      //player inv, allow transactions, maybe do somthing later
-    } else {
+    } else if (event.getClickedInventory().getType() != InventoryType.PLAYER) {
       event.setCancelled(true);
     }
   }
 
-  private boolean hasPageAccess(Player player, int pageNumber) {
+  public static boolean hasPageAccess(final Player player, final int pageNumber) {
     if (pageNumber == 0) {
       return true;
     }
     if (player.hasPermission("Storinator.vault." + pageNumber)) {
       return true;
     }
-    switch (pageNumber) {
-      case 4:
-        return QuestWorldPlugin.getAPI().getPlayerStatus(player).getQuestPoints() >= 50;
-      case 5:
-        return QuestWorldPlugin.getAPI().getPlayerStatus(player).getQuestPoints() >= 120;
-      case 6:
-        return QuestWorldPlugin.getAPI().getPlayerStatus(player).getQuestPoints() >= 200;
-      case 7:
-        return QuestWorldPlugin.getAPI().getPlayerStatus(player).getQuestPoints() >= 300;
+    return switch (pageNumber) {
+      case 4 -> QuestWorldPlugin.getAPI().getPlayerStatus(player).getQuestPoints() >= 50;
+      case 5 -> QuestWorldPlugin.getAPI().getPlayerStatus(player).getQuestPoints() >= 120;
+      case 6 -> QuestWorldPlugin.getAPI().getPlayerStatus(player).getQuestPoints() >= 200;
+      case 7 -> QuestWorldPlugin.getAPI().getPlayerStatus(player).getQuestPoints() >= 300;
+      default -> false;
+    };
+  }
+
+  private void close() {
+    saveDisplayToPage();
+    if (owner.getOpenInventory().getTopInventory() == displayInventory) {
+      owner.closeInventory();
     }
-    return false;
+    if (viewer != null && viewer.getOpenInventory().getTopInventory() == displayInventory) {
+      viewer.closeInventory();
+    }
   }
 
-  void savePage() {
-    PlayerData.updatePage(data, inv, page);
+  private void applyPageData(Inventory pageInvy) {
+    displayInventory.setContents(pageInvy.getContents());
+    applyButtons();
   }
 
-  private void savePage(Inventory inv) {
-    PlayerData.updatePage(data, inv, page);
+  public void saveDisplayToPage() {
+    Inventory pageInvy = data.getPage(openedPageNumber);
+    pageInvy.setContents(displayInventory.getContents());
+    pageInvy.setItem(0, null);
+    pageInvy.setItem(1, null);
+    pageInvy.setItem(2, null);
+    pageInvy.setItem(3, null);
+    pageInvy.setItem(4, null);
+    pageInvy.setItem(5, null);
+    pageInvy.setItem(6, null);
+    pageInvy.setItem(7, null);
+    pageInvy.setItem(8, null);
+  }
+
+  private void applyButtons() {
+    for (int i = 0; i < 9; ++i) {
+      if (i == openedPageNumber) {
+        displayInventory.setItem(i, activeButton());
+      } else {
+        displayInventory.setItem(i, buttons[i]);
+      }
+    }
   }
 }

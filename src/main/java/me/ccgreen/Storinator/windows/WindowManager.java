@@ -1,7 +1,7 @@
 package me.ccgreen.Storinator.windows;
 
-import java.util.HashMap;
-
+import java.util.Map;
+import java.util.WeakHashMap;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -12,72 +12,52 @@ import me.ccgreen.Storinator.StorinatorMain;
 
 public class WindowManager {
 
-	private StorinatorMain plugin;
-  private HashMap<Player, VaultWindow> VAULT_WINDOWS = new HashMap<>();
+  private final Map<Player, VaultWindow> VAULT_WINDOWS = new WeakHashMap<>();
 
-  public WindowManager(StorinatorMain plugin) {
-    this.plugin = plugin;
-    Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
-      for (VaultWindow VW : VAULT_WINDOWS.values()) {
-        StorinatorMain.printInfo("Saving all open tabs");
-        VW.savePage();
-        StorinatorMain.printInfo("Data saved");
-      }
-    }, 6000, 6000);
-  }
-
-  public void createVaultWindow(Player player) {
+  public void openVaultWindow(final Player player, final Player viewer) {
     if (StorinatorMain.playMan.hasPlayer(player)) {
-      VaultWindow VW = new VaultWindow(player, null);
-      VAULT_WINDOWS.put(player, VW);
+      if (VAULT_WINDOWS.containsKey(player)) {
+        Bukkit.getLogger().warning("Player attempted to open a vault when a vault is open?");
+      }
+      VaultWindow VW = new VaultWindow(player, viewer);
+      VAULT_WINDOWS.put(viewer != null ? viewer : player, VW);
     } else {
-      player.sendMessage("Data still loading...");
+      (viewer != null ? viewer : player).sendMessage("Data still loading...");
     }
   }
-
-  public void createVaultWindow(Player target, Player viewer) {
-    if (StorinatorMain.playMan.hasPlayer(target)) {
-      VaultWindow VW = new VaultWindow(target, viewer);
-      VAULT_WINDOWS.put(viewer, VW);
-    } else {
-      viewer.sendMessage("Data still loading...");
-    }
-  }
-
-  public void changeVaultWindow(Player player, int page) {
-    player.closeInventory();
-    VaultWindow VW = new VaultWindow(player, null, page);
-    VAULT_WINDOWS.put(player, VW);
-  }
-
   public void removePlayer(Player player) {
     if (VAULT_WINDOWS.containsKey(player)) {
-      VAULT_WINDOWS.get(player).savePage();
+      VAULT_WINDOWS.get(player).saveDisplayToPage();
       VAULT_WINDOWS.remove(player);
     }
   }
 
-  public void handleDragEvent(InventoryDragEvent event) {
-    if (event.getInventory().getType() == InventoryType.CHEST) {
-      if (VAULT_WINDOWS.containsKey(event.getWhoClicked())) {
-        event.setCancelled(true);
-      }
+  public void handleDragEvent(final InventoryDragEvent event) {
+    if (event.getInventory().getType() == InventoryType.CHEST &&
+        VAULT_WINDOWS.containsKey(event.getWhoClicked())) {
+      event.setCancelled(true);
     }
   }
 
-  public void handleClickEvent(InventoryClickEvent event) {
-    if (event.getInventory().getType() == InventoryType.CHEST) {
-      if (VAULT_WINDOWS.containsKey(event.getWhoClicked())) {
-        VaultWindow win = VAULT_WINDOWS.get(event.getWhoClicked());
-        win.HandleClickEvent(event);
-      }
+  public void handleClickEvent(final InventoryClickEvent event) {
+    if (event.getInventory().getType() == InventoryType.CHEST &&
+        VAULT_WINDOWS.containsKey(event.getWhoClicked())) {
+      VaultWindow win = VAULT_WINDOWS.get(event.getWhoClicked());
+      win.handleClick(event);
     }
   }
 
-  public void closeInventoryies() {
-    for (Player p : plugin.getServer().getOnlinePlayers()) {
+  public void saveAllOpenToData() {
+    for (VaultWindow vw : VAULT_WINDOWS.values()) {
+      vw.saveDisplayToPage();
+    }
+  }
+
+  public void closeAllVaults() {
+    saveAllOpenToData();
+    for (Player p : VAULT_WINDOWS.keySet()) {
       p.closeInventory();
-      removePlayer(p);
     }
+    VAULT_WINDOWS.clear();
   }
 }
