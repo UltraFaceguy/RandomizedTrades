@@ -7,15 +7,16 @@ import com.tealcube.minecraft.bukkit.shade.acf.annotation.CommandCompletion;
 import com.tealcube.minecraft.bukkit.shade.acf.annotation.CommandPermission;
 import com.tealcube.minecraft.bukkit.shade.acf.annotation.Subcommand;
 import com.tealcube.minecraft.bukkit.shade.acf.bukkit.contexts.OnlinePlayer;
-import me.ccgreen.Storinator.StorinatorMain;
+import me.ccgreen.Storinator.StorinatorPlugin;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 @CommandAlias("storinator|storage|vault|bank")
 public class StorinatorCommand extends BaseCommand {
 
-  private final StorinatorMain plugin;
+  private final StorinatorPlugin plugin;
 
-  public StorinatorCommand(StorinatorMain plugin) {
+  public StorinatorCommand(StorinatorPlugin plugin) {
     this.plugin = plugin;
   }
 
@@ -31,13 +32,13 @@ public class StorinatorCommand extends BaseCommand {
   @CommandCompletion("@players")
   @CommandPermission("storinator.open")
   public void openCommand(CommandSender sender, OnlinePlayer target) {
-    StorinatorMain.winMan.openVaultWindow(target.getPlayer(), null);
+    plugin.getVaultManager().openVault(target.getPlayer().getUniqueId(), target.getPlayer());
   }
 
   @Subcommand("inspect")
   @CommandCompletion("@players")
   @CommandPermission("storinator.inspect")
-  public void inspectCommand(OnlinePlayer sender, OnlinePlayer target) {
-    StorinatorMain.winMan.openVaultWindow(sender.getPlayer(), target.getPlayer());
+  public void inspectCommand(Player player, OnlinePlayer target) {
+    plugin.getVaultManager().openVault(target.getPlayer().getUniqueId(), player);
   }
 }

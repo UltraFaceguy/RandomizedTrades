@@ -1,6 +1,6 @@
 package me.ccgreen.Storinator.listeners;
 
-import me.ccgreen.Storinator.StorinatorMain;
+import me.ccgreen.Storinator.StorinatorPlugin;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -9,21 +9,24 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 public class EntryExitListener implements Listener {
 
-	public EntryExitListener() {
+	private final StorinatorPlugin plugin;
+
+	public EntryExitListener(StorinatorPlugin plugin) {
+		this.plugin = plugin;
 	}
 
 	@EventHandler
 	public void OnPlayerConnect(PlayerJoinEvent event) {
-		StorinatorMain.playMan.getPlayerData(event.getPlayer());
+		plugin.getVaultManager().loadPersonalVault(event.getPlayer());
 	}
 
 	@EventHandler
 	public void OnPlayerDisconnect(PlayerQuitEvent event) {
-		StorinatorMain.playMan.playerLeave(event.getPlayer());
+		event.getPlayer().closeInventory();
 	}
 
 	@EventHandler
 	public void OnPlayerKicked(PlayerKickEvent event) {
-		StorinatorMain.playMan.playerLeave(event.getPlayer());
+		event.getPlayer().closeInventory();
 	}
 }

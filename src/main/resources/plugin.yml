@@ -1,9 +1,11 @@
 name: Storinator9000
-main: me.ccgreen.Storinator.StorinatorMain
-version: 1.1.0
+main: me.ccgreen.Storinator.StorinatorPlugin
+version: 1.2.0
 description: A vault plugin
 depend: [Facecore]
-api-version: 1.17
+softdepend:
+  - FaceQuest
+api-version: 1.19
 
 commands:
   storinator:

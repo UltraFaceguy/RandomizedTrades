@@ -1,5 +1,8 @@
 package me.ccgreen.Storinator;
 
+import com.tealcube.minecraft.bukkit.facecore.utilities.FaceColor;
+import com.tealcube.minecraft.bukkit.facecore.utilities.FaceColor.ShaderStyle;
+import io.pixeloutlaw.minecraft.spigot.hilt.ItemStackExtensionsKt;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -16,12 +19,15 @@ public class config {
 
   File configFile;
   YamlConfiguration configYml;
-  StorinatorMain main;
+  StorinatorPlugin main;
 
-  private static final ItemStack[] unlockIcon = new ItemStack[8];
+  private static final ItemStack[] LOCKED_ICONS = new ItemStack[9];
+  private static final ItemStack[] UNLOCKED_ICONS = new ItemStack[9];
+  private static final ItemStack[] OPENED_ICONS = new ItemStack[9];
+
   private String window_title, tab_name;
 
-  config(StorinatorMain Main) {
+  config(StorinatorPlugin Main) {
     main = Main;
     loadConfig();
   }
@@ -43,9 +49,9 @@ public class config {
           configYml.set("tab_name", ChatColor.RED + "Page %number%!");
 
           for (int i = 0; i < 8; i++) {
-            ItemStack locked = new ItemStack(Material.RED_STAINED_GLASS_PANE, 1);
+            ItemStack locked = new ItemStack(Material.PAPER, 1);
             ItemMeta meta = locked.getItemMeta();
-
+            meta.setCustomModelData(23);
             meta.setDisplayName(names[i]);
             List<String> lore = new Vector<>();
             lore.add("line 1: ");
@@ -72,13 +78,41 @@ public class config {
 
     window_title = configYml.getString("window_title");
     tab_name = configYml.getString("tab_name");
-    for (int i = 0; i < 8; i++) {
-      unlockIcon[i] = configYml.getItemStack("lockIcon_" + (i + 1));
+    for (int i = 0; i <= 8; i++) {
+      LOCKED_ICONS[i] = configYml.getItemStack("lockIcon_" + i);
+      OPENED_ICONS[i] = buildOpenStack(i);
+      UNLOCKED_ICONS[i] = buildUnlockedStack(i);
     }
   }
 
-  public ItemStack getIcon(int icon) {
-    return unlockIcon[icon - 1];
+  public ItemStack getIcon(LockStata state,  int icon) {
+    return switch (state) {
+      case OPENED -> OPENED_ICONS[icon];
+      case UNLOCKED -> UNLOCKED_ICONS[icon];
+      case LOCKED -> LOCKED_ICONS[icon];
+    };
+  }
+
+  public enum LockStata {
+    LOCKED,
+    UNLOCKED,
+    OPENED,
+  }
+
+  public ItemStack buildOpenStack(int index) {
+    ItemStack stack = new ItemStack(Material.PAPER, 1);
+    ItemStackExtensionsKt.setCustomModelData(stack, 25);
+    ItemStackExtensionsKt.setDisplayName(stack,
+        FaceColor.YELLOW.shaded(ShaderStyle.WAVE) + "Page (" + (index + 1) + ")");
+    return stack;
+  }
+
+  public ItemStack buildUnlockedStack(int index) {
+    ItemStack stack = new ItemStack(Material.PAPER, 1);
+    ItemStackExtensionsKt.setCustomModelData(stack, 24);
+    ItemStackExtensionsKt.setDisplayName(stack,
+        FaceColor.LIGHT_GRAY + "Page (" + (index + 1) + ")");
+    return stack;
   }
 
   public String windowTitle() {
