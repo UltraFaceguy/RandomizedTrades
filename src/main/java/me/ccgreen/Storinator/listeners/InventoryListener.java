@@ -1,7 +1,5 @@
 package me.ccgreen.Storinator.listeners;
 
-import com.questworld.QuestWorldPlugin;
-import com.questworld.QuestingImpl;
 import me.ccgreen.Storinator.StorinatorPlugin;
 import me.ccgreen.Storinator.events.PagesRequestEvent;
 import me.ccgreen.Storinator.managers.VaultManager;
@@ -58,20 +56,24 @@ public class InventoryListener implements Listener {
     if (VaultManager.PERSONAL_VAULT.equals(event.getType())) {
       if (event.getPage() == 0) {
         event.setAllowed(false);
+        return;
       }
       if (event.getPlayer().hasPermission("Storinator.vault." + event.getPage())) {
         event.setAllowed(true);
+        return;
       }
-      QuestingImpl api = QuestWorldPlugin.getAPI();
+      if (plugin.getQuestApi() == null) {
+        event.setAllowed(false);
+        return;
+      }
       event.setAllowed(switch (event.getPage()) {
-        case 4 -> api.getPlayerStatus(event.getPlayer()).getQuestPoints() >= 50;
-        case 5 -> api.getPlayerStatus(event.getPlayer()).getQuestPoints() >= 120;
-        case 6 -> api.getPlayerStatus(event.getPlayer()).getQuestPoints() >= 200;
-        case 7 -> api.getPlayerStatus(event.getPlayer()).getQuestPoints() >= 300;
+        case 4 -> plugin.getQuestApi().getPlayerStatus(event.getPlayer()).getQuestPoints() >= 50;
+        case 5 -> plugin.getQuestApi().getPlayerStatus(event.getPlayer()).getQuestPoints() >= 120;
+        case 6 -> plugin.getQuestApi().getPlayerStatus(event.getPlayer()).getQuestPoints() >= 200;
+        case 7 -> plugin.getQuestApi().getPlayerStatus(event.getPlayer()).getQuestPoints() >= 300;
         default -> false;
       });
     }
-    event.setAllowed(false);
   }
 
   @EventHandler

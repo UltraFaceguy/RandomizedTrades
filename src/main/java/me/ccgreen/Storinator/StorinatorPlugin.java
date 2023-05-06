@@ -1,5 +1,7 @@
 package me.ccgreen.Storinator;
 
+import com.questworld.QuestWorldPlugin;
+import com.questworld.QuestingImpl;
 import com.tealcube.minecraft.bukkit.facecore.utilities.FaceColor;
 import com.tealcube.minecraft.bukkit.shade.acf.PaperCommandManager;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.StringUtils;
@@ -39,6 +41,8 @@ public class StorinatorPlugin extends JavaPlugin {
 	private MasterConfiguration settings;
 	@Getter
 	private SessionFactory sessionFactory;
+	@Getter
+	private QuestingImpl questApi = null;
 
 	@Getter
 	private static StorinatorPlugin instance;
@@ -72,6 +76,10 @@ public class StorinatorPlugin extends JavaPlugin {
 			this.getLogger().severe("Missing database field! Plugin will fail to work!");
 			Bukkit.getPluginManager().disablePlugin(this);
 			return;
+		}
+
+		if (Bukkit.getServer().getPluginManager().isPluginEnabled("FaceQuest")) {
+			questApi = QuestWorldPlugin.getAPI();
 		}
 
 		settings = MasterConfiguration.loadFromFiles(configYAML);
