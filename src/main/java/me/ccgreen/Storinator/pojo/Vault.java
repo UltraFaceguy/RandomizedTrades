@@ -27,6 +27,7 @@ public class Vault {
   private String type;
   private Map<Integer, VaultPage> pages = new HashMap<>();
   private Map<UUID, Integer> lastOpenPage = new HashMap<>();
+  private int savesSinceLastUse = 0;
 
   public Vault(StorinatorPlugin plugin, UUID uuid, String type,
       Collection<Integer> availablePages) {
@@ -50,6 +51,7 @@ public class Vault {
   }
 
   public Inventory openPage(Player viewer, int page) {
+    savesSinceLastUse = 0;
     if (!pages.containsKey(page) || !hasAccess(viewer, page)) {
       viewer.playSound(viewer.getLocation(), Sound.BLOCK_IRON_TRAPDOOR_CLOSE, 1.0f, 0.7f);
       PaletteUtil.sendMessage(viewer, "|yellow|You don't have access to this vault page!");
@@ -64,6 +66,7 @@ public class Vault {
   }
 
   public VaultPage loadPage(String uuidKey, int page) {
+    savesSinceLastUse = 0;
     EntityManager entityManager = plugin.getSessionFactory().createEntityManager();
     VaultPage vaultPage = entityManager.find(VaultPage.class, uuidKey);
     if (vaultPage == null) {
@@ -112,5 +115,12 @@ public class Vault {
 
   public static Inventory emptyInvy() {
     return Bukkit.createInventory(null, 54, StorinatorPlugin.INVY_NAME);
+  }
+
+  public void destroy() {
+    plugin = null;
+    uuid = null;
+    type = null;
+    lastOpenPage = null;
   }
 }

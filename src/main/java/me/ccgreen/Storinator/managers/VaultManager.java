@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import lombok.Getter;
 import me.ccgreen.Storinator.StorinatorPlugin;
@@ -56,10 +55,12 @@ public class VaultManager {
   }
 
   private void clearEmptyVaults() {
-    Set<String> onlinePlayers = new HashSet<>();
-    for (Player p : Bukkit.getOnlinePlayers()) {
-      onlinePlayers.add(p.getUniqueId().toString());
-    }
-    vaults.keySet().removeIf(uuid -> !onlinePlayers.contains(uuid.toString()));
+    vaults.values().forEach(v -> {
+      if (v.getSavesSinceLastUse() > 4) {
+        v.destroy();
+      }
+    });
+    vaults.values().removeIf(v -> v.getSavesSinceLastUse() > 4);
+    vaults.values().forEach(v -> v.setSavesSinceLastUse(v.getSavesSinceLastUse() + 1));
   }
 }
