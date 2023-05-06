@@ -31,6 +31,13 @@ public class VaultManager {
         PERSONAL_VAULT, List.of(0, 1, 2, 3, 4, 5, 6, 7, 8)));
   }
 
+  public void loadVault(UUID uuid, String vaultType) {
+    if (vaults.containsKey(uuid)) {
+      return;
+    }
+    vaults.put(uuid, new Vault(plugin, uuid, vaultType, List.of(0, 1, 2, 3, 4, 5, 6, 7, 8)));
+  }
+
   public void openVault(UUID uuid, Player player, int page) {
     Vault vault = vaults.get(uuid);
     vault.openPage(player, page);
