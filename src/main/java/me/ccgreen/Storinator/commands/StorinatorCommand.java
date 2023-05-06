@@ -8,6 +8,7 @@ import com.tealcube.minecraft.bukkit.shade.acf.annotation.CommandPermission;
 import com.tealcube.minecraft.bukkit.shade.acf.annotation.Subcommand;
 import com.tealcube.minecraft.bukkit.shade.acf.bukkit.contexts.OnlinePlayer;
 import me.ccgreen.Storinator.StorinatorPlugin;
+import me.ccgreen.Storinator.managers.VaultManager;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -32,13 +33,13 @@ public class StorinatorCommand extends BaseCommand {
   @CommandCompletion("@players")
   @CommandPermission("storinator.open")
   public void openCommand(CommandSender sender, OnlinePlayer target) {
-    plugin.getVaultManager().openVault(target.getPlayer().getUniqueId(), target.getPlayer());
+    plugin.getVaultManager().openVault(target.getPlayer().getUniqueId(), VaultManager.PERSONAL_VAULT, target.getPlayer());
   }
 
   @Subcommand("inspect")
   @CommandCompletion("@players")
   @CommandPermission("storinator.inspect")
   public void inspectCommand(Player player, OnlinePlayer target) {
-    plugin.getVaultManager().openVault(target.getPlayer().getUniqueId(), player);
+    plugin.getVaultManager().openVault(target.getPlayer().getUniqueId(), VaultManager.PERSONAL_VAULT, player);
   }
 }

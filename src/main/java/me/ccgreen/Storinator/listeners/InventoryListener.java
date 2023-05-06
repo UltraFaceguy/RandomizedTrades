@@ -3,6 +3,7 @@ package me.ccgreen.Storinator.listeners;
 import me.ccgreen.Storinator.StorinatorPlugin;
 import me.ccgreen.Storinator.events.PagesRequestEvent;
 import me.ccgreen.Storinator.managers.VaultManager;
+import me.ccgreen.Storinator.pojo.LastOpenedData;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -29,11 +30,16 @@ public class InventoryListener implements Listener {
         event.getCurrentItem().getType() == Material.PAPER &&
         event.getCurrentItem().hasItemMeta()) {
       ItemMeta meta = event.getCurrentItem().getItemMeta();
-      if (meta.hasCustomModelData() && (meta.getCustomModelData() <= 25
-          && meta.getCustomModelData() >= 23)) {
+      if (meta.hasCustomModelData() && (meta.getCustomModelData() <= 25 && meta.getCustomModelData() >= 23)) {
         event.setCancelled(true);
-        plugin.getVaultManager().openVault(event.getWhoClicked().getUniqueId(),
-            (Player) event.getWhoClicked(), event.getSlot());
+        LastOpenedData lastOpenedData = plugin.getVaultManager().getLastOpenedData()
+            .get(event.getWhoClicked().getUniqueId());
+        plugin.getVaultManager().openVault(
+            lastOpenedData.getUuid(),
+            lastOpenedData.getVaultType(),
+            (Player) event.getWhoClicked(),
+            event.getSlot()
+        );
       }
     }
   }
@@ -48,7 +54,7 @@ public class InventoryListener implements Listener {
       return;
     }
     event.setCancelled(true);
-    plugin.getVaultManager().openVault(player.getUniqueId(), player);
+    plugin.getVaultManager().openVault(player.getUniqueId(), VaultManager.PERSONAL_VAULT,  player);
   }
 
   @EventHandler

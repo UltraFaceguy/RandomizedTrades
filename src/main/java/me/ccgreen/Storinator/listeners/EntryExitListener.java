@@ -1,6 +1,7 @@
 package me.ccgreen.Storinator.listeners;
 
 import me.ccgreen.Storinator.StorinatorPlugin;
+import me.ccgreen.Storinator.managers.VaultManager;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -17,7 +18,7 @@ public class EntryExitListener implements Listener {
 
 	@EventHandler
 	public void OnPlayerConnect(PlayerJoinEvent event) {
-		plugin.getVaultManager().loadPersonalVault(event.getPlayer());
+		plugin.getVaultManager().createVault(event.getPlayer().getUniqueId(), VaultManager.PERSONAL_VAULT, null);
 	}
 
 	@EventHandler

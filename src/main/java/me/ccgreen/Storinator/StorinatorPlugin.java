@@ -125,7 +125,7 @@ public class StorinatorPlugin extends JavaPlugin {
 		commandManager.registerCommand(new StorinatorCommand(this));
 
 		for (final Player player : Bukkit.getServer().getOnlinePlayers()) {
-			vaultManager.loadPersonalVault(player);
+			vaultManager.createVault(player.getUniqueId(), VaultManager.PERSONAL_VAULT, null);
 		}
 	}
 

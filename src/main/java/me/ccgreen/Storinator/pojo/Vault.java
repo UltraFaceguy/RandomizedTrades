@@ -2,11 +2,8 @@ package me.ccgreen.Storinator.pojo;
 
 import com.tealcube.minecraft.bukkit.facecore.utilities.PaletteUtil;
 import com.tealcube.minecraft.bukkit.shade.jakarta.persistence.EntityManager;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 import lombok.Data;
 import me.ccgreen.Storinator.StorinatorPlugin;
@@ -25,25 +22,15 @@ public class Vault {
 
   private UUID uuid;
   private String type;
-  private Map<Integer, VaultPage> pages = new HashMap<>();
-  private Map<UUID, Integer> lastOpenPage = new HashMap<>();
+  private final Map<Integer, VaultPage> pages;
+  private final Map<UUID, Integer> lastOpenPage = new HashMap<>();
   private int savesSinceLastUse = 0;
 
-  public Vault(StorinatorPlugin plugin, UUID uuid, String type,
-      Collection<Integer> availablePages) {
+  public Vault(StorinatorPlugin plugin, UUID uuid, String type, Map<Integer, VaultPage> pages) {
     this.plugin = plugin;
     this.uuid = uuid;
     this.type = type;
-    Set<Integer> lootPages = new HashSet<>(availablePages);
-    Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-      EntityManager entityManager = plugin.getSessionFactory().createEntityManager();
-      for (int i : lootPages) {
-        String uuidKey = uuid.toString() + "_" + i;
-        VaultPage page = loadPage(uuidKey, i);
-        Bukkit.getScheduler().runTask(plugin, () -> pages.put(i, page));
-      }
-      entityManager.close();
-    });
+    this.pages = pages;
   }
 
   public Inventory openPage(Player player) {
@@ -51,6 +38,7 @@ public class Vault {
   }
 
   public Inventory openPage(Player viewer, int page) {
+    plugin.getVaultManager().getLastOpenedData().put(viewer.getUniqueId(), new LastOpenedData(uuid, type));
     savesSinceLastUse = 0;
     if (!pages.containsKey(page) || !hasAccess(viewer, page)) {
       viewer.playSound(viewer.getLocation(), Sound.BLOCK_IRON_TRAPDOOR_CLOSE, 1.0f, 0.7f);
@@ -63,22 +51,6 @@ public class Vault {
     Inventory invy = pages.get(page).getInventory();
     viewer.openInventory(invy);
     return invy;
-  }
-
-  public VaultPage loadPage(String uuidKey, int page) {
-    savesSinceLastUse = 0;
-    EntityManager entityManager = plugin.getSessionFactory().createEntityManager();
-    VaultPage vaultPage = entityManager.find(VaultPage.class, uuidKey);
-    if (vaultPage == null) {
-      vaultPage = new VaultPage(uuidKey, emptyInvy());
-      entityManager.getTransaction().begin();
-      entityManager.persist(vaultPage);
-      entityManager.getTransaction().commit();
-      entityManager.close();
-    } else {
-      vaultPage.setInventory(VaultPage.fromBase64(vaultPage.getData()));
-    }
-    return vaultPage;
   }
 
   public void savePages() {
@@ -121,6 +93,5 @@ public class Vault {
     plugin = null;
     uuid = null;
     type = null;
-    lastOpenPage = null;
   }
 }
