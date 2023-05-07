@@ -4,7 +4,6 @@ import static me.ccgreen.Storinator.pojo.Vault.emptyInvy;
 
 import com.tealcube.minecraft.bukkit.shade.jakarta.persistence.EntityManager;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.UUID;
 import javax.annotation.Nullable;
@@ -84,25 +83,10 @@ public class VaultManager {
   }
 
   public void saveAllAsync() {
-    Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-      saveAll();
-      Bukkit.getScheduler().runTask(plugin, this::clearEmptyVaults);
-    });
+    Bukkit.getScheduler().runTaskAsynchronously(plugin, this::saveAll);
   }
 
   public void saveAll() {
-    for (Vault v : new HashSet<>(getVaults().values())) {
-      v.savePages();
-    }
-  }
-
-  private void clearEmptyVaults() {
-    vaults.values().forEach(v -> {
-      if (v.getSavesSinceLastUse() > 4) {
-        v.destroy();
-      }
-    });
-    vaults.values().removeIf(v -> v.getSavesSinceLastUse() > 4);
-    vaults.values().forEach(v -> v.setSavesSinceLastUse(v.getSavesSinceLastUse() + 1));
+    getVaults().values().forEach(Vault::savePages);
   }
 }
