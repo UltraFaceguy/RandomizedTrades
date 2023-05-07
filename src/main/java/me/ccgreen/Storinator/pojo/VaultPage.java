@@ -31,6 +31,8 @@ public class VaultPage implements Serializable {
 
   @Transient
   private Inventory inventory;
+  @Transient
+  private int hashCode;
 
   public VaultPage() {
 
@@ -42,8 +44,14 @@ public class VaultPage implements Serializable {
     data = toBase64(inventory);
   }
 
+  public boolean isModified() {
+    return hashCode == inventory.hashCode();
+  }
+
   public void serialize() {
-    data = toBase64(inventory);
+    if (isModified()) {
+      data = toBase64(inventory);
+    }
   }
 
   public static String toBase64(final Inventory inventory) {

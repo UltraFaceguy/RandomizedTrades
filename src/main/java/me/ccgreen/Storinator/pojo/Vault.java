@@ -24,7 +24,6 @@ public class Vault {
   private String type;
   private final Map<Integer, VaultPage> pages;
   private final Map<UUID, Integer> lastOpenPage = new HashMap<>();
-  private boolean saved = false;
 
   public Vault(StorinatorPlugin plugin, UUID uuid, String type, Map<Integer, VaultPage> pages) {
     this.plugin = plugin;
@@ -39,7 +38,6 @@ public class Vault {
 
   public Inventory openPage(Player viewer, int page) {
     plugin.getVaultManager().getLastOpenedData().put(viewer.getUniqueId(), new LastOpenedData(uuid, type));
-    saved = false;
     if (!pages.containsKey(page) || !hasAccess(viewer, page)) {
       viewer.playSound(viewer.getLocation(), Sound.BLOCK_IRON_TRAPDOOR_CLOSE, 1.0f, 0.7f);
       PaletteUtil.sendMessage(viewer, "|yellow|You don't have access to this vault page!");
@@ -53,20 +51,15 @@ public class Vault {
     return invy;
   }
 
-  public void savePages() {
-    if (saved) {
-      return;
-    }
-    EntityManager entityManager = plugin.getSessionFactory().createEntityManager();
-    entityManager.getTransaction().begin();
+  public void savePages(EntityManager entityManager) {
     for (VaultPage vp : pages.values()) {
+      if (!vp.isModified()) {
+        continue;
+      }
       vp.serialize();
       entityManager.merge(vp);
       entityManager.detach(vp);
     }
-    entityManager.getTransaction().commit();
-    entityManager.close();
-    saved = true;
   }
 
   private void updateButtons(Player player, Inventory inventory) {

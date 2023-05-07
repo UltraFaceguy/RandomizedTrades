@@ -87,6 +87,10 @@ public class VaultManager {
   }
 
   public void saveAll() {
-    getVaults().values().forEach(Vault::savePages);
+    EntityManager entityManager = plugin.getSessionFactory().createEntityManager();
+    entityManager.getTransaction().begin();
+    getVaults().values().forEach(v -> v.savePages(entityManager));
+    entityManager.getTransaction().commit();
+    entityManager.close();
   }
 }
