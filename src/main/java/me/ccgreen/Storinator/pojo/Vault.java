@@ -38,7 +38,12 @@ public class Vault {
 
   public Inventory openPage(Player viewer, int page) {
     plugin.getVaultManager().getLastOpenedData().put(viewer.getUniqueId(), new LastOpenedData(uuid, type));
-    if (!pages.containsKey(page) || !hasAccess(viewer, page)) {
+    if (!pages.containsKey(page)) {
+      viewer.playSound(viewer.getLocation(), Sound.BLOCK_IRON_TRAPDOOR_CLOSE, 1.0f, 0.7f);
+      PaletteUtil.sendMessage(viewer, "|yellow|This page doesn't exist!");
+      return null;
+    }
+    if (!hasAccess(viewer, page)) {
       viewer.playSound(viewer.getLocation(), Sound.BLOCK_IRON_TRAPDOOR_CLOSE, 1.0f, 0.7f);
       PaletteUtil.sendMessage(viewer, "|yellow|You don't have access to this vault page!");
       return null;
@@ -52,13 +57,16 @@ public class Vault {
   }
 
   public void savePages(EntityManager entityManager) {
+    //Bukkit.getLogger().info("SAVING PAGES");
     for (VaultPage vp : pages.values()) {
-      if (!vp.isModified()) {
-        continue;
+      boolean changes = vp.serialize();
+      if (changes) {
+        //Bukkit.getLogger().info("CHANGES HAPPENED SAVING");
+        entityManager.merge(vp);
+        entityManager.detach(vp);
+      } else {
+        //Bukkit.getLogger().info("NO CHANGES NO SAVING");
       }
-      vp.serialize();
-      entityManager.merge(vp);
-      entityManager.detach(vp);
     }
   }
 

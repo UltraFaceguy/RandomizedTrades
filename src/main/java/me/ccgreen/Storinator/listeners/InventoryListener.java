@@ -54,39 +54,41 @@ public class InventoryListener implements Listener {
       return;
     }
     event.setCancelled(true);
-    plugin.getVaultManager().openVault(player.getUniqueId(), VaultManager.PERSONAL_VAULT,  player);
+    plugin.getVaultManager().openVault(player.getUniqueId(), VaultManager.PERSONAL_VAULT, player);
   }
 
   @EventHandler
-  public void onPageRequest(PagesRequestEvent event) {
-    if (VaultManager.PERSONAL_VAULT.equals(event.getType())) {
-      if (event.getPage() == 0) {
-        event.setAllowed(false);
-        return;
-      }
-      if (event.getPlayer().hasPermission("Storinator.vault." + event.getPage())) {
-        event.setAllowed(true);
-        return;
-      }
-      if (plugin.getQuestApi() == null) {
-        event.setAllowed(false);
-        return;
-      }
-      event.setAllowed(switch (event.getPage()) {
-        case 4 -> plugin.getQuestApi().getPlayerStatus(event.getPlayer()).getQuestPoints() >= 50;
-        case 5 -> plugin.getQuestApi().getPlayerStatus(event.getPlayer()).getQuestPoints() >= 120;
-        case 6 -> plugin.getQuestApi().getPlayerStatus(event.getPlayer()).getQuestPoints() >= 200;
-        case 7 -> plugin.getQuestApi().getPlayerStatus(event.getPlayer()).getQuestPoints() >= 300;
-        default -> false;
-      });
+  public void onPersonalVaultRequest(PagesRequestEvent event) {
+    if (!VaultManager.PERSONAL_VAULT.equals(event.getType())) {
+      return;
     }
+    if (event.getPage() == 0) {
+      event.setAllowed(true);
+      return;
+    }
+    if (event.getPlayer().hasPermission("Storinator.vault." + event.getPage())) {
+      event.setAllowed(true);
+      return;
+    }
+    if (plugin.getQuestApi() == null) {
+      //Bukkit.getLogger().info("[Storinator] No quest API");
+      event.setAllowed(false);
+      return;
+    }
+    event.setAllowed(switch (event.getPage()) {
+      case 4 -> plugin.getQuestApi().getPlayerStatus(event.getPlayer()).getQuestPoints() >= 50;
+      case 5 -> plugin.getQuestApi().getPlayerStatus(event.getPlayer()).getQuestPoints() >= 120;
+      case 6 -> plugin.getQuestApi().getPlayerStatus(event.getPlayer()).getQuestPoints() >= 200;
+      case 7 -> plugin.getQuestApi().getPlayerStatus(event.getPlayer()).getQuestPoints() >= 300;
+      default -> false;
+    });
   }
 
   @EventHandler
   public void onWorldSave(WorldSaveEvent e) {
     if (e.getWorld().getName().equals("Faceland")) {
       plugin.getVaultManager().saveAllAsync();
-      Bukkit.getLogger().info("[Storinator] Saved all vault data");
+      //Bukkit.getLogger().info("[Storinator] Saved all vault data");
     }
   }
 }
