@@ -1,19 +1,24 @@
 package me.ccgreen.Storinator.listeners;
 
+import com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils;
+import com.tealcube.minecraft.bukkit.shade.apache.commons.validator.routines.checkdigit.ISBN10CheckDigit;
 import me.ccgreen.Storinator.StorinatorPlugin;
 import me.ccgreen.Storinator.events.PagesRequestEvent;
 import me.ccgreen.Storinator.managers.VaultManager;
 import me.ccgreen.Storinator.pojo.LastOpenedData;
+import org.apache.logging.log4j.message.Message;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.world.WorldSaveEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 public class InventoryListener implements Listener {
@@ -26,14 +31,47 @@ public class InventoryListener implements Listener {
 
   @EventHandler
   public void onInvyClick(InventoryClickEvent event) {
+
+    LastOpenedData lastOpenedData = plugin.getVaultManager().getLastOpenedData()
+            .get(event.getWhoClicked().getUniqueId());
+
+
+//    if (event.getClick() == ClickType.NUMBER_KEY) {
+//      if (lastOpenedData.getVaultType().equals("guild-vault")){
+//        if (isBlockedItem(event.getWhoClicked().getInventory().getItem(event.getHotbarButton())) || isBlockedItem(event.getCurrentItem())) {
+//          MessageUtils.sendMessage(event.getWhoClicked(), plugin.getBlockedItemMessage());
+//          event.setCancelled(true);
+//        }
+//      }
+//    }
+//
+//
+//    if (event.getCurrentItem().hasItemMeta()){
+//      if (lastOpenedData.getVaultType().equals("guild-vault") && isBlockedItem(event.getCurrentItem())){
+//        MessageUtils.sendMessage(event.getWhoClicked(), plugin.getBlockedItemMessage());
+//        event.setCancelled(true);
+//      }
+//    }
+
+    if (lastOpenedData.getVaultType().equals("guild-vault") && isBlockedItem(event.getCurrentItem())) {
+      MessageUtils.sendMessage(event.getWhoClicked(), plugin.getBlockedItemMessage());
+      event.setCancelled(true);
+    } else if (event.getClick() == ClickType.NUMBER_KEY) {
+      ItemStack hotbarItem = event.getWhoClicked().getInventory().getItem(event.getHotbarButton());
+      if (lastOpenedData.getVaultType().equals("guild-vault") && (isBlockedItem(hotbarItem) || isBlockedItem(event.getCurrentItem()))) {
+        MessageUtils.sendMessage(event.getWhoClicked(), plugin.getBlockedItemMessage());
+        event.setCancelled(true);
+      }
+    }
+
     if (event.getSlot() < 9 && event.getCurrentItem() != null &&
         event.getCurrentItem().getType() == Material.PAPER &&
         event.getCurrentItem().hasItemMeta()) {
       ItemMeta meta = event.getCurrentItem().getItemMeta();
+
       if (meta.hasCustomModelData() && (meta.getCustomModelData() <= 25 && meta.getCustomModelData() >= 23)) {
         event.setCancelled(true);
-        LastOpenedData lastOpenedData = plugin.getVaultManager().getLastOpenedData()
-            .get(event.getWhoClicked().getUniqueId());
+
         plugin.getVaultManager().openVault(
             lastOpenedData.getUuid(),
             lastOpenedData.getVaultType(),
@@ -91,4 +129,27 @@ public class InventoryListener implements Listener {
       //Bukkit.getLogger().info("[Storinator] Saved all vault data");
     }
   }
+
+  private boolean isBlockedItem(ItemStack item){
+    boolean isBlocked = false;
+    if (item == null || !item.hasItemMeta()){
+      return false;
+    }
+
+    ItemMeta itemMeta = item.getItemMeta();
+
+    if (itemMeta.getLore() == null || itemMeta.getLore().isEmpty()){
+      return false;
+    }
+
+    for (String lore : itemMeta.getLore()){
+      String strippedLoreLine = lore.strip();
+      if (strippedLoreLine.contains(plugin.getUntradableSymbol())){
+        isBlocked = true;
+        break;
+      }
+    }
+    return isBlocked;
+  }
+
 }

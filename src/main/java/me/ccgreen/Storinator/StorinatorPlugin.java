@@ -3,6 +3,7 @@ package me.ccgreen.Storinator;
 import com.questworld.QuestWorldPlugin;
 import com.questworld.QuestingImpl;
 import com.tealcube.minecraft.bukkit.facecore.utilities.FaceColor;
+import com.tealcube.minecraft.bukkit.facecore.utilities.PaletteUtil;
 import com.tealcube.minecraft.bukkit.shade.acf.PaperCommandManager;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.StringUtils;
 import com.tealcube.minecraft.bukkit.shade.google.gson.Gson;
@@ -47,7 +48,10 @@ public class StorinatorPlugin extends JavaPlugin {
 	@Getter
 	private static StorinatorPlugin instance;
 
+	@Getter
+	private String untradableSymbol, blockedItemMessage;
 	public static String INVY_NAME;
+
 
 	public void onEnable() {
 		instance = this;
@@ -56,6 +60,9 @@ public class StorinatorPlugin extends JavaPlugin {
 				getResource("config.yml"),
 				VersionUpdateType.BACKUP_AND_NEW);
 		configYAML.update();
+
+		untradableSymbol = configYAML.getString("untradable-symbol", "傝");
+		blockedItemMessage = PaletteUtil.color(configYAML.getString("blocked-item-message", "|red|This item can not be moved within a vault!"));
 
 		final String username = configYAML.getString("MySQL.user");
 		final String password = configYAML.getString("MySQL.password");
