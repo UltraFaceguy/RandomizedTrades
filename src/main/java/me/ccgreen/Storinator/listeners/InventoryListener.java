@@ -49,8 +49,10 @@ public class InventoryListener implements Listener {
 //        event.setCancelled(true);
 //      }
 //    }
-
-    if (lastOpenedData.getVaultType().equals("guild-vault") && isBlockedItem(event.getCurrentItem())) {
+    if (lastOpenedData == null) {
+      return;
+    }
+    if ("guild-vault".equals(lastOpenedData.getVaultType()) && isBlockedItem(event.getCurrentItem())) {
       MessageUtils.sendMessage(event.getWhoClicked(), plugin.getBlockedItemMessage());
       event.setCancelled(true);
     } else if (event.getClick() == ClickType.NUMBER_KEY) {
