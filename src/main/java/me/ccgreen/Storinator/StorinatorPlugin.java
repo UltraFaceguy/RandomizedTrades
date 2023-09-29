@@ -16,6 +16,7 @@ import io.pixeloutlaw.minecraft.spigot.config.VersionedSmartYamlConfiguration;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.util.List;
 import java.util.Properties;
 import lombok.Getter;
 import me.ccgreen.Storinator.commands.StorinatorCommand;
@@ -24,7 +25,6 @@ import me.ccgreen.Storinator.listeners.InventoryListener;
 import me.ccgreen.Storinator.managers.VaultManager;
 import me.ccgreen.Storinator.pojo.VaultPage;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
@@ -49,7 +49,9 @@ public class StorinatorPlugin extends JavaPlugin {
 	private static StorinatorPlugin instance;
 
 	@Getter
-	private String untradableSymbol, blockedItemMessage;
+	private List<String> blockedStrings;
+	@Getter
+	private String blockedItemMessage;
 	public static String INVY_NAME;
 
 
@@ -61,7 +63,7 @@ public class StorinatorPlugin extends JavaPlugin {
 				VersionUpdateType.BACKUP_AND_NEW);
 		configYAML.update();
 
-		untradableSymbol = configYAML.getString("untradable-symbol", "傝");
+		blockedStrings = configYAML.getStringList("blocked-strings");
 		blockedItemMessage = PaletteUtil.color(configYAML.getString("blocked-item-message", "|red|This item can not be moved within a vault!"));
 
 		final String username = configYAML.getString("MySQL.user");

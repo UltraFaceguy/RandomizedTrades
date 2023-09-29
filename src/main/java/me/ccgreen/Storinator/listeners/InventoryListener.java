@@ -1,13 +1,10 @@
 package me.ccgreen.Storinator.listeners;
 
 import com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils;
-import com.tealcube.minecraft.bukkit.shade.apache.commons.validator.routines.checkdigit.ISBN10CheckDigit;
 import me.ccgreen.Storinator.StorinatorPlugin;
 import me.ccgreen.Storinator.events.PagesRequestEvent;
 import me.ccgreen.Storinator.managers.VaultManager;
 import me.ccgreen.Storinator.pojo.LastOpenedData;
-import org.apache.logging.log4j.message.Message;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -144,9 +141,11 @@ public class InventoryListener implements Listener {
 
     for (String lore : itemMeta.getLore()){
       String strippedLoreLine = lore.strip();
-      if (strippedLoreLine.contains(plugin.getUntradableSymbol())){
-        isBlocked = true;
-        break;
+      for (String blockedString : plugin.getBlockedStrings()){
+        if (strippedLoreLine.contains(blockedString)){
+          isBlocked = true;
+          break;
+        }
       }
     }
     return isBlocked;
