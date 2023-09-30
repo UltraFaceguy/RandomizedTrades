@@ -117,7 +117,7 @@ public class StorinatorPlugin extends JavaPlugin {
 		StorinatorPlugin.Config = new config(this);
 
 		PERSONAL_INVY_NAME = FaceColor.TRUE_WHITE + "\uF808拽";
-		GUILD_INVY_NAME = FaceColor.TRUE_WHITE + "\uF808拽";
+		GUILD_INVY_NAME = FaceColor.TRUE_WHITE + "\uF808抭";
 
 		getServer().getPluginManager().registerEvents(new InventoryListener(this, configYAML), this);
 		getServer().getPluginManager().registerEvents(new EntryExitListener(this), this);
