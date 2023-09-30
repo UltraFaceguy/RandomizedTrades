@@ -1,7 +1,5 @@
 package me.ccgreen.Storinator.managers;
 
-import static me.ccgreen.Storinator.pojo.Vault.emptyInvy;
-
 import com.tealcube.minecraft.bukkit.shade.jakarta.persistence.EntityManager;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,6 +12,7 @@ import me.ccgreen.Storinator.pojo.Vault;
 import me.ccgreen.Storinator.pojo.VaultPage;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 
 public class VaultManager {
 
@@ -54,7 +53,7 @@ public class VaultManager {
       EntityManager entityManager = plugin.getSessionFactory().createEntityManager();
       for (int i = 0; i <= 8; i++) {
         String uuidKey = uuid.toString() + "_" + i;
-        VaultPage page = loadPage(uuidKey);
+        VaultPage page = loadPage(uuidKey, vaultType);
         pages.put(i, page);
       }
       entityManager.close();
@@ -67,17 +66,22 @@ public class VaultManager {
     });
   }
 
-  private VaultPage loadPage(String uuidKey) {
+  private VaultPage loadPage(String uuidKey, String vaultType) {
+    String title = switch (vaultType) {
+      case "guild-vault" -> StorinatorPlugin.GUILD_INVY_NAME;
+      default -> StorinatorPlugin.PERSONAL_INVY_NAME;
+    };
     EntityManager entityManager = plugin.getSessionFactory().createEntityManager();
     VaultPage vaultPage = entityManager.find(VaultPage.class, uuidKey);
     if (vaultPage == null) {
-      vaultPage = new VaultPage(uuidKey, emptyInvy());
+      Inventory invy = Bukkit.createInventory(null, 54, title);
+      vaultPage = new VaultPage(uuidKey, invy);
       entityManager.getTransaction().begin();
       entityManager.persist(vaultPage);
       entityManager.getTransaction().commit();
       entityManager.close();
     } else {
-      vaultPage.setInventory(VaultPage.fromBase64(vaultPage.getData()));
+      vaultPage.setInventory(VaultPage.fromBase64(vaultPage.getData(), vaultType));
     }
     return vaultPage;
   }

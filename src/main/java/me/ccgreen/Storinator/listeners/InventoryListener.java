@@ -1,6 +1,8 @@
 package me.ccgreen.Storinator.listeners;
 
-import com.tealcube.minecraft.bukkit.facecore.utilities.MessageUtils;
+import com.tealcube.minecraft.bukkit.facecore.utilities.PaletteUtil;
+import io.pixeloutlaw.minecraft.spigot.config.VersionedSmartYamlConfiguration;
+import java.util.List;
 import me.ccgreen.Storinator.StorinatorPlugin;
 import me.ccgreen.Storinator.events.PagesRequestEvent;
 import me.ccgreen.Storinator.managers.VaultManager;
@@ -10,8 +12,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.world.WorldSaveEvent;
@@ -21,56 +23,26 @@ import org.bukkit.inventory.meta.ItemMeta;
 public class InventoryListener implements Listener {
 
   private final StorinatorPlugin plugin;
+  private final List<String> blockedStrings;
+  private final String blockedItemMessage;
 
-  public InventoryListener(StorinatorPlugin plugin) {
+  public InventoryListener(StorinatorPlugin plugin, VersionedSmartYamlConfiguration configuration) {
     this.plugin = plugin;
+    blockedStrings = configuration.getStringList("blocked-strings");
+    blockedItemMessage = PaletteUtil.color(configuration
+        .getString("blocked-item-message", "|red|This item can not be moved within a vault!"));
   }
 
   @EventHandler
   public void onInvyClick(InventoryClickEvent event) {
-
-    LastOpenedData lastOpenedData = plugin.getVaultManager().getLastOpenedData()
-            .get(event.getWhoClicked().getUniqueId());
-
-
-//    if (event.getClick() == ClickType.NUMBER_KEY) {
-//      if (lastOpenedData.getVaultType().equals("guild-vault")){
-//        if (isBlockedItem(event.getWhoClicked().getInventory().getItem(event.getHotbarButton())) || isBlockedItem(event.getCurrentItem())) {
-//          MessageUtils.sendMessage(event.getWhoClicked(), plugin.getBlockedItemMessage());
-//          event.setCancelled(true);
-//        }
-//      }
-//    }
-//
-//
-//    if (event.getCurrentItem().hasItemMeta()){
-//      if (lastOpenedData.getVaultType().equals("guild-vault") && isBlockedItem(event.getCurrentItem())){
-//        MessageUtils.sendMessage(event.getWhoClicked(), plugin.getBlockedItemMessage());
-//        event.setCancelled(true);
-//      }
-//    }
-    if (lastOpenedData == null) {
-      return;
-    }
-    if ("guild-vault".equals(lastOpenedData.getVaultType()) && isBlockedItem(event.getCurrentItem())) {
-      MessageUtils.sendMessage(event.getWhoClicked(), plugin.getBlockedItemMessage());
-      event.setCancelled(true);
-    } else if (event.getClick() == ClickType.NUMBER_KEY) {
-      ItemStack hotbarItem = event.getWhoClicked().getInventory().getItem(event.getHotbarButton());
-      if (lastOpenedData.getVaultType().equals("guild-vault") && (isBlockedItem(hotbarItem) || isBlockedItem(event.getCurrentItem()))) {
-        MessageUtils.sendMessage(event.getWhoClicked(), plugin.getBlockedItemMessage());
-        event.setCancelled(true);
-      }
-    }
-
     if (event.getSlot() < 9 && event.getCurrentItem() != null &&
         event.getCurrentItem().getType() == Material.PAPER &&
         event.getCurrentItem().hasItemMeta()) {
       ItemMeta meta = event.getCurrentItem().getItemMeta();
-
       if (meta.hasCustomModelData() && (meta.getCustomModelData() <= 25 && meta.getCustomModelData() >= 23)) {
         event.setCancelled(true);
-
+        LastOpenedData lastOpenedData = plugin.getVaultManager().getLastOpenedData()
+            .get(event.getWhoClicked().getUniqueId());
         plugin.getVaultManager().openVault(
             lastOpenedData.getUuid(),
             lastOpenedData.getVaultType(),
@@ -78,6 +50,25 @@ public class InventoryListener implements Listener {
             event.getSlot()
         );
       }
+    }
+  }
+
+  @EventHandler
+  public void onMoveItem(InventoryMoveItemEvent event) {
+    if (event.isCancelled() || event.getDestination() == event.getSource()) {
+      return;
+    }
+    if (event.getDestination().getType() != InventoryType.CHEST) {
+      return;
+    }
+    Player player = (Player) event.getSource().getHolder();
+    String title = player.getOpenInventory().getTitle();
+    if (!StorinatorPlugin.GUILD_INVY_NAME.equals(title)) {
+      return;
+    }
+    if (isBlockedItem(event.getItem())) {
+      event.setCancelled(true);
+      player.sendMessage(blockedItemMessage);
     }
   }
 
@@ -129,22 +120,22 @@ public class InventoryListener implements Listener {
     }
   }
 
-  private boolean isBlockedItem(ItemStack item){
+  private boolean isBlockedItem(ItemStack item) {
     boolean isBlocked = false;
-    if (item == null || !item.hasItemMeta()){
+    if (item == null || !item.hasItemMeta()) {
       return false;
     }
 
     ItemMeta itemMeta = item.getItemMeta();
 
-    if (itemMeta.getLore() == null || itemMeta.getLore().isEmpty()){
+    if (itemMeta == null || itemMeta.getLore() == null || itemMeta.getLore().isEmpty()) {
       return false;
     }
 
-    for (String lore : itemMeta.getLore()){
+    for (String lore : itemMeta.getLore()) {
       String strippedLoreLine = lore.strip();
-      for (String blockedString : plugin.getBlockedStrings()){
-        if (strippedLoreLine.contains(blockedString)){
+      for (String blockedString : blockedStrings) {
+        if (strippedLoreLine.contains(blockedString)) {
           isBlocked = true;
           break;
         }

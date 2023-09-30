@@ -3,7 +3,6 @@ package me.ccgreen.Storinator;
 import com.questworld.QuestWorldPlugin;
 import com.questworld.QuestingImpl;
 import com.tealcube.minecraft.bukkit.facecore.utilities.FaceColor;
-import com.tealcube.minecraft.bukkit.facecore.utilities.PaletteUtil;
 import com.tealcube.minecraft.bukkit.shade.acf.PaperCommandManager;
 import com.tealcube.minecraft.bukkit.shade.apache.commons.lang3.StringUtils;
 import com.tealcube.minecraft.bukkit.shade.google.gson.Gson;
@@ -16,7 +15,6 @@ import io.pixeloutlaw.minecraft.spigot.config.VersionedSmartYamlConfiguration;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.util.List;
 import java.util.Properties;
 import lombok.Getter;
 import me.ccgreen.Storinator.commands.StorinatorCommand;
@@ -48,11 +46,7 @@ public class StorinatorPlugin extends JavaPlugin {
 	@Getter
 	private static StorinatorPlugin instance;
 
-	@Getter
-	private List<String> blockedStrings;
-	@Getter
-	private String blockedItemMessage;
-	public static String INVY_NAME;
+	public static String PERSONAL_INVY_NAME, GUILD_INVY_NAME;
 
 
 	public void onEnable() {
@@ -62,9 +56,6 @@ public class StorinatorPlugin extends JavaPlugin {
 				getResource("config.yml"),
 				VersionUpdateType.BACKUP_AND_NEW);
 		configYAML.update();
-
-		blockedStrings = configYAML.getStringList("blocked-strings");
-		blockedItemMessage = PaletteUtil.color(configYAML.getString("blocked-item-message", "|red|This item can not be moved within a vault!"));
 
 		final String username = configYAML.getString("MySQL.user");
 		final String password = configYAML.getString("MySQL.password");
@@ -125,9 +116,10 @@ public class StorinatorPlugin extends JavaPlugin {
 		vaultManager = new VaultManager(this);
 		StorinatorPlugin.Config = new config(this);
 
-		INVY_NAME = FaceColor.TRUE_WHITE + "\uF808拽\uF80C\uF80A\uF808\uF804" + FaceColor.ORANGE + "Bank Vault";
+		PERSONAL_INVY_NAME = FaceColor.TRUE_WHITE + "\uF808拽";
+		GUILD_INVY_NAME = FaceColor.TRUE_WHITE + "\uF808拽";
 
-		getServer().getPluginManager().registerEvents(new InventoryListener(this), this);
+		getServer().getPluginManager().registerEvents(new InventoryListener(this, configYAML), this);
 		getServer().getPluginManager().registerEvents(new EntryExitListener(this), this);
 
 		final PaperCommandManager commandManager = new PaperCommandManager(this);

@@ -90,10 +90,6 @@ public class Vault {
     return pagesRequestEvent.isAllowed();
   }
 
-  public static Inventory emptyInvy() {
-    return Bukkit.createInventory(null, 54, StorinatorPlugin.INVY_NAME);
-  }
-
   public void destroy() {
     plugin = null;
     uuid = null;

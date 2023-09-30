@@ -19,7 +19,7 @@ import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
 @Data
 @Entity
-@Table(name="storinator_data_v2")
+@Table(name = "storinator_data_v2")
 public class VaultPage implements Serializable {
 
   @Id
@@ -64,12 +64,17 @@ public class VaultPage implements Serializable {
     }
   }
 
-  public static Inventory fromBase64(final String data) {
+  public static Inventory fromBase64(final String data, final String vaultType) {
+    String title = switch (vaultType) {
+      case "guild-vault" -> StorinatorPlugin.GUILD_INVY_NAME;
+      default -> StorinatorPlugin.PERSONAL_INVY_NAME;
+    };
     try {
       final ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(data));
       final BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream);
       final int size = dataInput.readInt();
-      final Inventory inventory = Bukkit.getServer().createInventory(null, 54, StorinatorPlugin.INVY_NAME);
+
+      final Inventory inventory = Bukkit.getServer().createInventory(null, 54, title);
       for (int i = 9; i < 54; ++i) {
         try {
           inventory.setItem(i, (ItemStack) dataInput.readObject());
@@ -81,7 +86,7 @@ public class VaultPage implements Serializable {
       return inventory;
     } catch (Exception e) {
       Bukkit.getLogger().warning("[Storinator] Unable to load a data invy! Creating new...");
-      return Bukkit.getServer().createInventory(null, 54, StorinatorPlugin.INVY_NAME);
+      return Bukkit.getServer().createInventory(null, 54, title);
     }
   }
 }
