@@ -9,6 +9,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import me.ccgreen.Storinator.StorinatorPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.Inventory;
@@ -17,7 +19,8 @@ import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
-@Data
+@Getter
+@Setter
 @Entity
 @Table(name = "storinator_data_v2")
 public class VaultPage implements Serializable {
@@ -31,6 +34,8 @@ public class VaultPage implements Serializable {
 
   @Transient
   private Inventory inventory;
+  @Transient
+  private boolean hasBeenUpdated = false;
 
   public VaultPage() {
 

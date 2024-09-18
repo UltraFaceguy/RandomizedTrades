@@ -2,6 +2,7 @@ package me.ccgreen.Storinator.pojo;
 
 import com.tealcube.minecraft.bukkit.facecore.utilities.PaletteUtil;
 import com.tealcube.minecraft.bukkit.shade.jakarta.persistence.EntityManager;
+import info.faceland.loot.utils.ItemRenderer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -52,6 +53,12 @@ public class Vault {
     lastOpenPage.put(viewer.getUniqueId(), page);
     updateButtons(viewer, pages.get(page).getInventory());
     Inventory invy = pages.get(page).getInventory();
+    if (!pages.get(page).isHasBeenUpdated()) {
+      for (var is : invy.getContents()) {
+        ItemRenderer.renderItem(is, false);
+      }
+      pages.get(page).setHasBeenUpdated(true);
+    }
     viewer.openInventory(invy);
     return invy;
   }

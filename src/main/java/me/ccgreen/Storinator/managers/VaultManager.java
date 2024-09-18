@@ -51,11 +51,13 @@ public class VaultManager {
     Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
       Map<Integer, VaultPage> pages = new HashMap<>();
       EntityManager entityManager = plugin.getSessionFactory().createEntityManager();
+      entityManager.getTransaction().begin();
       for (int i = 0; i <= 8; i++) {
         String uuidKey = uuid.toString() + "_" + i;
-        VaultPage page = loadPage(uuidKey, vaultType);
+        VaultPage page = loadPage(uuidKey, vaultType, entityManager);
         pages.put(i, page);
       }
+      entityManager.getTransaction().commit();
       entityManager.close();
       Bukkit.getScheduler().runTask(plugin, () -> {
         vaults.put(uuid, new Vault(plugin, uuid, vaultType, pages));
@@ -66,20 +68,16 @@ public class VaultManager {
     });
   }
 
-  private VaultPage loadPage(String uuidKey, String vaultType) {
+  private VaultPage loadPage(String uuidKey, String vaultType, EntityManager entityManager) {
     String title = switch (vaultType) {
       case "guild-vault" -> StorinatorPlugin.GUILD_INVY_NAME;
       default -> StorinatorPlugin.PERSONAL_INVY_NAME;
     };
-    EntityManager entityManager = plugin.getSessionFactory().createEntityManager();
     VaultPage vaultPage = entityManager.find(VaultPage.class, uuidKey);
     if (vaultPage == null) {
       Inventory invy = Bukkit.createInventory(null, 54, title);
       vaultPage = new VaultPage(uuidKey, invy);
-      entityManager.getTransaction().begin();
       entityManager.persist(vaultPage);
-      entityManager.getTransaction().commit();
-      entityManager.close();
     } else {
       vaultPage.setInventory(VaultPage.fromBase64(vaultPage.getData(), vaultType));
     }
