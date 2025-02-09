@@ -71,6 +71,7 @@ public class VaultManager {
   private VaultPage loadPage(String uuidKey, String vaultType, EntityManager entityManager) {
     String title = switch (vaultType) {
       case "guild-vault" -> StorinatorPlugin.GUILD_INVY_NAME;
+      case "home-vault" -> StorinatorPlugin.HOME_INVY_NAME;
       default -> StorinatorPlugin.PERSONAL_INVY_NAME;
     };
     VaultPage vaultPage = entityManager.find(VaultPage.class, uuidKey);

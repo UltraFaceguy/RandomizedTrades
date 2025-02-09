@@ -72,6 +72,7 @@ public class VaultPage implements Serializable {
   public static Inventory fromBase64(final String data, final String vaultType) {
     String title = switch (vaultType) {
       case "guild-vault" -> StorinatorPlugin.GUILD_INVY_NAME;
+      case "home-vault" -> StorinatorPlugin.HOME_INVY_NAME;
       default -> StorinatorPlugin.PERSONAL_INVY_NAME;
     };
     try {
