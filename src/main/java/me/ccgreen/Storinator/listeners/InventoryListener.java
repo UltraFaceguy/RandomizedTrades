@@ -35,11 +35,10 @@ public class InventoryListener implements Listener {
 
   @EventHandler
   public void onInvyClick(InventoryClickEvent event) {
-    if (event.getSlot() < 9 && event.getCurrentItem() != null &&
-        event.getCurrentItem().getType() == Material.PAPER &&
+    if (event.getSlot() < 9 && event.getCurrentItem() != null && event.getCurrentItem().getType() == Material.PAPER &&
         event.getCurrentItem().hasItemMeta()) {
       ItemMeta meta = event.getCurrentItem().getItemMeta();
-      if (meta.hasCustomModelData() && (meta.getCustomModelData() <= 25 && meta.getCustomModelData() >= 23)) {
+      if (meta.hasMaxStackSize() && meta.getMaxStackSize() == 25) {
         event.setCancelled(true);
         LastOpenedData lastOpenedData = plugin.getVaultManager().getLastOpenedData()
             .get(event.getWhoClicked().getUniqueId());

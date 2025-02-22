@@ -2,8 +2,11 @@ package me.ccgreen.Storinator.pojo;
 
 import java.util.UUID;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 public class LastOpenedData {
   private final UUID uuid;
   private final String vaultType;

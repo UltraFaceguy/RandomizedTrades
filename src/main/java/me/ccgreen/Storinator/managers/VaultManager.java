@@ -30,7 +30,7 @@ public class VaultManager {
 
   public void openVault(UUID uuid, String vaultType, Player player, int page) {
     if (vaults.containsKey(uuid)) {
-      vaults.get(uuid).openPage(player, page);
+      vaults.get(uuid).openPage(player, page, "home-vault".equals(vaultType));
       return;
     }
     createVault(uuid, vaultType, player);
@@ -38,7 +38,7 @@ public class VaultManager {
 
   public void openVault(UUID uuid, String vaultType, Player player) {
     if (vaults.containsKey(uuid)) {
-      vaults.get(uuid).openPage(player);
+      vaults.get(uuid).openPage(player, "home-vault".equals(vaultType));
       return;
     }
     createVault(uuid, vaultType, player);
@@ -62,7 +62,7 @@ public class VaultManager {
       Bukkit.getScheduler().runTask(plugin, () -> {
         vaults.put(uuid, new Vault(plugin, uuid, vaultType, pages));
         if (player != null) {
-          vaults.get(uuid).openPage(player);
+          vaults.get(uuid).openPage(player, "home-vault".equals(vaultType));
         }
       });
     });
